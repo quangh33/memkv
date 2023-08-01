@@ -15,5 +15,6 @@ func init() {
 
 func main() {
 	fmt.Println("starting memkv database ...")
-	server.RunSyncTcpServer()
+	// server.RunSyncTcpServer()
+	server.RunAsyncTCPServer()
 }

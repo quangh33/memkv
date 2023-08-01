@@ -3,10 +3,10 @@ package core
 import (
 	"errors"
 	"fmt"
-	"net"
+	"io"
 )
 
-func evalPING(args []string, c net.Conn) error {
+func evalPING(args []string, c io.ReadWriter) error {
 	var buf []byte
 
 	if len(args) > 1 {
@@ -23,7 +23,7 @@ func evalPING(args []string, c net.Conn) error {
 	return err
 }
 
-func EvalAndResponse(cmd *MemKVCmd, c net.Conn) error {
+func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	switch cmd.Cmd {
 	case "PING":
 		return evalPING(cmd.Args, c)

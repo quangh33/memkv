@@ -95,6 +95,40 @@ func evalTTL(args []string, c io.ReadWriter) error {
 	return nil
 }
 
+func evalDEL(args []string, c io.ReadWriter) error {
+	delCount := 0
+
+	for _, key := range args {
+		if ok := Del(key); ok {
+			delCount++
+		}
+	}
+
+	c.Write(Encode(delCount, false))
+	return nil
+}
+
+func evalEXPIRE(args []string, c io.ReadWriter) error {
+	if len(args) < 2 {
+		return errors.New("(error) ERR wrong number of arguments for 'EXPIRE' command")
+	}
+	key := args[0]
+	ttlSec, err := strconv.ParseInt(args[1], 10, 64)
+	if err != nil {
+		return errors.New("(error) ERR value is not an integer or out of range")
+	}
+
+	obj := Get(key)
+	if obj == nil {
+		c.Write([]byte(":0\r\n"))
+		return nil
+	}
+
+	obj.ExpireAt = time.Now().UnixMilli() + ttlSec*1000
+	c.Write([]byte(":1\r\n"))
+	return nil
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	switch cmd.Cmd {
 	case "PING":
@@ -105,6 +139,10 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		return evalGET(cmd.Args, c)
 	case "TTL":
 		return evalTTL(cmd.Args, c)
+	case "DEL":
+		return evalDEL(cmd.Args, c)
+	case "EXPIRE":
+		return evalEXPIRE(cmd.Args, c)
 	}
 	return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 }

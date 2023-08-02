@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"memkv/constant"
 	"strings"
 )
 
@@ -92,8 +93,11 @@ func Encode(value interface{}, isSimpleString bool) []byte {
 			return []byte(fmt.Sprintf("+%s%s", v, CRLF))
 		}
 		return []byte(fmt.Sprintf("$%d%s%s%s", len(v), CRLF, v, CRLF))
+	case int64:
+		return []byte(fmt.Sprintf(":%d\r\n", v))
+	default:
+		return constant.RESP_NIL
 	}
-	return []byte{}
 }
 
 func ParseCmd(data []byte) (*MemKVCmd, error) {

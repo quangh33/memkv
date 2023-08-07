@@ -1,6 +1,7 @@
 package core
 
 import (
+	"memkv/config"
 	"memkv/constant"
 	"time"
 )
@@ -40,6 +41,9 @@ func Get(k string) *Obj {
 }
 
 func Put(k string, obj *Obj) {
+	if len(store) >= config.KeyNummberLimit {
+		evict()
+	}
 	store[k] = obj
 }
 

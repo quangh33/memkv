@@ -95,6 +95,8 @@ func Encode(value interface{}, isSimpleString bool) []byte {
 		return []byte(fmt.Sprintf("$%d%s%s%s", len(v), CRLF, v, CRLF))
 	case int64, int32, int16, int8, int:
 		return []byte(fmt.Sprintf(":%d\r\n", v))
+	case error:
+		return []byte(fmt.Sprintf("-%s\r\n", v))
 	default:
 		return constant.RESP_NIL
 	}

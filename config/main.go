@@ -12,3 +12,4 @@ const (
 )
 
 var EvictStrategy int = EvictFirst
+var AOFFileName = "./memkv-master.aof"

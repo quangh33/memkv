@@ -117,6 +117,11 @@ func evalEXPIRE(args []string) []byte {
 	return constant.RESP_ONE
 }
 
+func evalBGREWRITEAOF(args []string) []byte {
+	DumpAllAOF()
+	return constant.RESP_OK
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
@@ -133,6 +138,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalDEL(cmd.Args)
 	case "EXPIRE":
 		res = evalEXPIRE(cmd.Args)
+	case "BGREWRITEAOF":
+		res = evalBGREWRITEAOF(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

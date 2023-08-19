@@ -4,7 +4,7 @@ import "memkv/config"
 
 func evictFirst() {
 	for k := range store {
-		delete(store, k)
+		Del(k)
 		return
 	}
 }

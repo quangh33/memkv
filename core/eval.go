@@ -18,6 +18,7 @@ func evalSET(args []string) []byte {
 	var ttlMs int64 = -1
 
 	key, value = args[0], args[1]
+	oType, oEnc := deduceTypeString(value)
 	if len(args) > 2 {
 		ttlSec, err := strconv.ParseInt(args[3], 10, 64)
 		if err != nil {
@@ -26,7 +27,7 @@ func evalSET(args []string) []byte {
 		ttlMs = ttlSec * 1000
 	}
 
-	Put(key, NewObj(value, ttlMs))
+	Put(key, NewObj(value, ttlMs, oType, oEnc))
 	return constant.RESP_OK
 }
 
@@ -122,6 +123,32 @@ func evalBGREWRITEAOF(args []string) []byte {
 	return constant.RESP_OK
 }
 
+func evalINCR(args []string) []byte {
+	if len(args) != 1 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'INCR' command"), false)
+	}
+	key := args[0]
+	obj := Get(key)
+	if obj == nil {
+		obj = NewObj("0", constant.NO_EXPIRE, constant.OBJ_TYPE_STRING, constant.OBJ_ENCODING_INT)
+		Put(key, obj)
+	}
+
+	if err := assertType(obj.TypeEncoding, constant.OBJ_TYPE_STRING); err != nil {
+		return Encode(err, false)
+	}
+
+	if err := assertEncoding(obj.TypeEncoding, constant.OBJ_ENCODING_INT); err != nil {
+		return Encode(err, false)
+	}
+
+	i, _ := strconv.ParseInt(obj.Value.(string), 10, 64)
+	i++
+	obj.Value = strconv.FormatInt(i, 10)
+
+	return Encode(i, false)
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
@@ -140,6 +167,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalEXPIRE(cmd.Args)
 	case "BGREWRITEAOF":
 		res = evalBGREWRITEAOF(cmd.Args)
+	case "INCR":
+		res = evalINCR(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

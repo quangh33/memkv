@@ -1,7 +1,7 @@
 package config
 
 var Host string = "0.0.0.0"
-var Port int = 8080
+var Port int = 8081
 var MaxConnection int = 20000
 var KeyNummberLimit int = 5000000
 

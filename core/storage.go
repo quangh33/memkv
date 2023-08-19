@@ -7,8 +7,11 @@ import (
 )
 
 type Obj struct {
-	Value    interface{}
-	ExpireAt int64
+	Value        interface{}
+	ExpireAt     int64
+	TypeEncoding uint8
+	// type    | encoding
+	// [][][][]|[][][][]
 }
 
 var store map[string]*Obj
@@ -17,15 +20,16 @@ func init() {
 	store = make(map[string]*Obj)
 }
 
-func NewObj(value interface{}, ttlMs int64) *Obj {
+func NewObj(value interface{}, ttlMs int64, oType uint8, oEnc uint8) *Obj {
 	var expireAt int64 = constant.NO_EXPIRE
 	if ttlMs > 0 {
 		expireAt = time.Now().UnixMilli() + ttlMs
 	}
 
 	return &Obj{
-		Value:    value,
-		ExpireAt: expireAt,
+		Value:        value,
+		ExpireAt:     expireAt,
+		TypeEncoding: oType | oEnc,
 	}
 }
 

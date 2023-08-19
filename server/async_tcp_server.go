@@ -41,6 +41,7 @@ func RunAsyncTCPServer() error {
 	// Create a server socket - an endpoint for communication between client and server
 	serverFD, err := syscall.Socket(syscall.AF_INET, syscall.O_NONBLOCK|syscall.SOCK_STREAM, 0)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	defer syscall.Close(serverFD)
@@ -52,6 +53,7 @@ func RunAsyncTCPServer() error {
 	// We want non-blocking mode because we will use epoll to monitor and then read from
 	// multiple FD, so we want to ensure that none of them cause the program to "lock up."
 	if err = syscall.SetNonblock(serverFD, true); err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -61,11 +63,13 @@ func RunAsyncTCPServer() error {
 		Port: config.Port,
 		Addr: [4]byte{ip4[0], ip4[1], ip4[2], ip4[3]},
 	}); err != nil {
+		log.Println(err)
 		return err
 	}
 
 	// Start listening
 	if err = syscall.Listen(serverFD, config.MaxConnection); err != nil {
+		log.Println(err)
 		return err
 	}
 

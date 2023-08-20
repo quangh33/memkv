@@ -42,7 +42,7 @@ func evalGET(args []string) []byte {
 		return constant.RESP_NIL
 	}
 
-	if obj.ExpireAt != constant.NO_EXPIRE && obj.ExpireAt <= time.Now().UnixMilli() {
+	if hasExpired(obj) {
 		return constant.RESP_NIL
 	}
 
@@ -75,11 +75,12 @@ func evalTTL(args []string) []byte {
 		return constant.TTL_KEY_NOT_EXIST
 	}
 
-	if obj.ExpireAt == constant.NO_EXPIRE {
+	exp, isExpirySet := getExpiry(obj)
+	if !isExpirySet {
 		return constant.TTL_KEY_EXIST_NO_EXPIRE
 	}
 
-	remainMs := obj.ExpireAt - time.Now().UnixMilli()
+	remainMs := exp - uint64(time.Now().UnixMilli())
 	if remainMs < 0 {
 		return constant.TTL_KEY_NOT_EXIST
 	}
@@ -114,7 +115,7 @@ func evalEXPIRE(args []string) []byte {
 		return constant.RESP_ZERO
 	}
 
-	obj.ExpireAt = time.Now().UnixMilli() + ttlSec*1000
+	setExpiry(obj, ttlSec*1000)
 	return constant.RESP_ONE
 }
 

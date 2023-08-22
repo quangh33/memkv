@@ -5,11 +5,32 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
+	"sync"
+	"sync/atomic"
 	"syscall"
 
 	"memkv/config"
+	"memkv/constant"
 	"memkv/core"
 )
+
+var eStatus int32 = constant.EngineStatus_WAITING
+
+func WaitForSignal(wg *sync.WaitGroup, signals chan os.Signal) {
+	defer wg.Done()
+	<-signals
+	for atomic.LoadInt32(&eStatus) == constant.EngineStatus_BUSY {
+	}
+
+	if !atomic.CompareAndSwapInt32(&eStatus, constant.EngineStatus_WAITING, constant.EngineStatus_SHUTTING_DOWN) {
+		// rarely happen
+		log.Println("Engine is busy again. Try again!")
+		return
+	}
+	core.Shutdown()
+	os.Exit(0)
+}
 
 func readCommandFD(fd int) (*core.MemKVCmd, error) {
 	var buf []byte = make([]byte, 512)
@@ -31,7 +52,8 @@ func responseErrorRw(err error, rw io.ReadWriter) {
 	rw.Write([]byte(fmt.Sprintf("-%s%s", err, core.CRLF)))
 }
 
-func RunAsyncTCPServer() error {
+func RunAsyncTCPServer(wg *sync.WaitGroup) error {
+	defer wg.Done()
 	log.Println("starting an asynchronous TCP server on", config.Host, config.Port)
 
 	// Create EPOLL Event Objects to hold events
@@ -92,13 +114,18 @@ func RunAsyncTCPServer() error {
 		return err
 	}
 
-	for {
+	for atomic.LoadInt32(&eStatus) != constant.EngineStatus_SHUTTING_DOWN {
 		// see if any FD is ready for an IO
 		nevents, e := syscall.EpollWait(epollFD, events[:], -1)
 		if e != nil {
 			continue
 		}
 
+		if !atomic.CompareAndSwapInt32(&eStatus, constant.EngineStatus_WAITING, constant.EngineStatus_BUSY) {
+			if eStatus == constant.EngineStatus_SHUTTING_DOWN {
+				return nil
+			}
+		}
 		for i := 0; i < nevents; i++ {
 			// if the socket server itself is ready for an IO
 			if int(events[i].Fd) == serverFD {
@@ -134,6 +161,9 @@ func RunAsyncTCPServer() error {
 				}
 				responseRw(cmd, comm)
 			}
+			atomic.SwapInt32(&eStatus, constant.EngineStatus_WAITING)
 		}
 	}
+
+	return nil
 }

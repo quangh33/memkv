@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"memkv/config"
 	"memkv/server"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 )
 
 func init() {
@@ -15,6 +19,13 @@ func init() {
 
 func main() {
 	fmt.Println("starting memkv database ...")
-	// server.RunSyncTcpServer()
-	server.RunAsyncTCPServer()
+	var signals chan os.Signal = make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go server.RunAsyncTCPServer(&wg)
+	go server.WaitForSignal(&wg, signals)
+
+	wg.Wait()
 }

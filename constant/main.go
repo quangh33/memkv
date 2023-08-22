@@ -13,3 +13,7 @@ const OBJ_TYPE_STRING uint8 = 0
 const OBJ_ENCODING_RAW uint8 = 0
 const OBJ_ENCODING_INT uint8 = 1
 const OBJ_ENCODING_EMBSTR uint8 = 2
+
+const EngineStatus_WAITING = 1
+const EngineStatus_BUSY = 2
+const EngineStatus_SHUTTING_DOWN = 3

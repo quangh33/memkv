@@ -20,8 +20,14 @@ func TestGeohashEncode(t *testing.T) {
 		[2]float64{-180, -85}:             "00bh2n0p050",
 	}
 
+	normalGeoRange := core.GeohashRange{
+		MinLat:  core.GEO_LAT_MIN,
+		MaxLat:  core.GEO_LAT_MAX,
+		MinLong: core.GEO_LONG_MIN,
+		MaxLong: core.GEO_LONG_MAX,
+	}
 	for k, v := range cases {
-		value, _ := core.GeohashEncode(k[0], k[1], core.GEO_MAX_STEP)
+		value, _ := core.GeohashEncode(normalGeoRange, k[0], k[1], core.GEO_MAX_STEP)
 		output := core.Base32Encode(value.Bits)
 		// fmt.Println(output)
 		if output != v {

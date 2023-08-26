@@ -10,11 +10,18 @@ const GEO_LAT_MAX float64 = 90
 const GEO_LONG_MIN float64 = -180
 const GEO_LONG_MAX float64 = 180
 const GEO_ALPHABET string = "0123456789bcdefghjkmnpqrstuvwxyz"
-const GEO_MAX_STEP uint8 = 26
+const GEO_MAX_STEP uint8 = 26 // 52-bits gives us accuracy down to 0.6m
 
 type GeohashBits struct {
 	Step uint8
 	Bits uint64
+}
+
+type GeohashRange struct {
+	MinLat  float64
+	MaxLat  float64
+	MinLong float64
+	MaxLong float64
 }
 
 func Base32Encode(x uint64) string {
@@ -31,8 +38,9 @@ func Base32Encode(x uint64) string {
 	return string(b[:])
 }
 
-func GeohashEncode(long float64, lat float64, step uint8) (*GeohashBits, error) {
-	if long > GEO_LONG_MAX || long < GEO_LONG_MIN || lat > GEO_LAT_MAX || lat < GEO_LAT_MIN {
+func GeohashEncode(geohashRange GeohashRange, long float64, lat float64, step uint8) (*GeohashBits, error) {
+	if long > geohashRange.MaxLong || long < geohashRange.MinLong ||
+		lat > geohashRange.MaxLat || lat < geohashRange.MinLat {
 		return nil, errors.New(fmt.Sprintf("invalid coord: %f, %f", long, lat))
 	}
 
@@ -41,13 +49,12 @@ func GeohashEncode(long float64, lat float64, step uint8) (*GeohashBits, error) 
 		Bits: 0,
 	}
 
-	latOffset := (lat - GEO_LAT_MIN) / (GEO_LAT_MAX - GEO_LAT_MIN)
-	longOffset := (long - GEO_LONG_MIN) / (GEO_LONG_MAX - GEO_LONG_MIN)
+	latOffset := (lat - geohashRange.MinLat) / (geohashRange.MaxLat - geohashRange.MinLat)
+	longOffset := (long - geohashRange.MinLong) / (geohashRange.MaxLong - geohashRange.MinLong)
 	exp2Step := float64(1 << GEO_MAX_STEP)
 	latOffset *= exp2Step
 	longOffset *= exp2Step
 	res.Bits = Interleave(uint32(latOffset), uint32(longOffset))
-	//PrintBin(res.Bits)
 	return res, nil
 }
 

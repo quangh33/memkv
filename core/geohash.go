@@ -11,7 +11,6 @@ const GeoLatMin float64 = -85.05112878
 const GeoLatMax float64 = 85.05112878
 const GeoLongMin float64 = -180
 const GeoLongMax float64 = 180
-const GeoAlphabet string = "0123456789bcdefghjkmnpqrstuvwxyz"
 const DR float64 = math.Pi / 180.0
 const EarthRadiusInMeters float64 = 6372797.560856
 
@@ -28,40 +27,6 @@ type GeohashRange struct {
 	MaxLat  float64
 	MinLong float64
 	MaxLong float64
-}
-
-/*
-break x into 5-bit blocks and map each block to a character in GeoAlphabet.
-If x is 52-bit long, the 2 last bits are encoded as 0. Example:
-
-	  0b10010 11010 10010 10110 10100 10101 10101 00101 01101 01001 01
-		v     u     q     q     q     p     p     5     e     9     0
-*/
-func Base32Encode(x uint64) string {
-	b := [11]byte{}
-	for i := 0; i < 11; i++ {
-		shift := 52 - (i+1)*5
-		if shift <= 0 {
-			b[i] = GeoAlphabet[0]
-			break
-		}
-		idx := (x >> shift) & 0b11111
-		b[i] = GeoAlphabet[idx]
-	}
-	return string(b[:])
-}
-
-func Base32Decode(s string) uint64 {
-	var x uint64
-
-	decode := [255]byte{}
-	for i := 0; i < len(GeoAlphabet); i++ {
-		decode[GeoAlphabet[i]] = byte(i)
-	}
-	for i := 0; i < 10; i++ {
-		x = (x << 5) | uint64(decode[s[i]])
-	}
-	return x
 }
 
 func GeohashEncode(geohashRange GeohashRange, long float64, lat float64, step uint8) (*GeohashBits, error) {

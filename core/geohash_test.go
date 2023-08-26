@@ -29,7 +29,7 @@ func TestGeohashEncode(t *testing.T) {
 	}
 	for k, v := range cases {
 		value, _ := core.GeohashEncode(normalGeoRange, k[0], k[1], core.GEO_MAX_STEP)
-		output := core.Base32Encode(value.Bits)
+		output := core.Base32encoding.Encode(value.Bits)
 		if output != v {
 			t.Fail()
 		}
@@ -59,7 +59,7 @@ func TestGeohashDecode(t *testing.T) {
 	for hash, expected := range cases {
 		geohashBits := core.GeohashBits{
 			Step: core.GEO_MAX_STEP,
-			Bits: core.Base32Decode(hash),
+			Bits: core.Base32encoding.Decode(hash),
 		}
 		// core.PrintBin(geohashBits.Bits)
 		long, lat := core.GeohashDecode(normalGeoRange, geohashBits)
@@ -110,8 +110,8 @@ func TestBase32Decode(t *testing.T) {
 	}
 
 	for _, x := range cases {
-		s := core.Base32Encode(x)
-		decode := core.Base32Decode(s)
+		s := core.Base32encoding.Encode(x)
+		decode := core.Base32encoding.Decode(s)
 		if x>>2 != decode {
 			t.Fail()
 		}

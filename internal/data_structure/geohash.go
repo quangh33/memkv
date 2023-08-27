@@ -1,4 +1,4 @@
-package core
+package data_structure
 
 import (
 	"errors"

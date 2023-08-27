@@ -1,4 +1,4 @@
-package core
+package data_structure
 
 import (
 	"math/rand"
@@ -101,6 +101,7 @@ func (sl *Skiplist) Insert(score float64, ele string) *SkiplistNode {
 			update[i] = sl.head
 			update[i].levels[i].span = sl.length
 		}
+		sl.level = level
 	}
 
 	// create new node and insert

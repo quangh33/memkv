@@ -1,8 +1,9 @@
-package core_test
+package data_structure_test
 
 import (
 	"math"
 	"memkv/internal/core"
+	"memkv/internal/data_structure"
 	"testing"
 )
 
@@ -21,14 +22,14 @@ func TestGeohashEncode(t *testing.T) {
 		[2]float64{-180, -85}:             "00bh2n0p050",
 	}
 
-	normalGeoRange := core.GeohashRange{
+	normalGeoRange := data_structure.GeohashRange{
 		MinLat:  -90,
 		MaxLat:  90,
 		MinLong: -180,
 		MaxLong: 180,
 	}
 	for k, v := range cases {
-		value, _ := core.GeohashEncode(normalGeoRange, k[0], k[1], core.GEO_MAX_STEP)
+		value, _ := data_structure.GeohashEncode(normalGeoRange, k[0], k[1], data_structure.GEO_MAX_STEP)
 		output := core.Base32encoding.Encode(value.Bits)
 		if output != v {
 			t.Fail()
@@ -50,20 +51,20 @@ func TestGeohashDecode(t *testing.T) {
 		"00bh2n0p050": {-180, -85},
 	}
 
-	normalGeoRange := core.GeohashRange{
+	normalGeoRange := data_structure.GeohashRange{
 		MinLat:  -90,
 		MaxLat:  90,
 		MinLong: -180,
 		MaxLong: 180,
 	}
 	for hash, expected := range cases {
-		geohashBits := core.GeohashBits{
-			Step: core.GEO_MAX_STEP,
+		geohashBits := data_structure.GeohashBits{
+			Step: data_structure.GEO_MAX_STEP,
 			Bits: core.Base32encoding.Decode(hash),
 		}
 		// core.PrintBin(geohashBits.Bits)
-		long, lat := core.GeohashDecode(normalGeoRange, geohashBits)
-		if core.GeohashGetDistance(long, lat, expected[0], expected[1]) > 1 {
+		long, lat := data_structure.GeohashDecode(normalGeoRange, geohashBits)
+		if data_structure.GeohashGetDistance(long, lat, expected[0], expected[1]) > 1 {
 			t.Fail()
 		}
 	}
@@ -77,7 +78,7 @@ func TestInterleave(t *testing.T) {
 	}
 
 	for k, v := range cases {
-		value := core.Interleave(k[0], k[1])
+		value := data_structure.Interleave(k[0], k[1])
 		if v != value {
 			t.Fail()
 		}
@@ -92,7 +93,7 @@ func TestDeinterleave(t *testing.T) {
 	}
 
 	for k, v := range cases {
-		even, odd := core.Deinterleave(k)
+		even, odd := data_structure.Deinterleave(k)
 		if even != v[0] || odd != v[1] {
 			t.Fail()
 		}
@@ -126,7 +127,7 @@ func TestGeohashGetDistance(t *testing.T) {
 	}
 
 	for points, dis := range cases {
-		output := core.GeohashGetDistance(points[0], points[1], points[2], points[3])
+		output := data_structure.GeohashGetDistance(points[0], points[1], points[2], points[3])
 		if math.Abs(output-dis) > 1e-5 {
 			t.Fail()
 		}

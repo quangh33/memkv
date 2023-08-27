@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"memkv/constant"
+	"memkv/internal/constant"
 	"strconv"
 	"time"
 )

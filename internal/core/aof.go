@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 	"log"
-	"memkv/config"
+	"memkv/internal/config"
 	"os"
 	"strings"
 )

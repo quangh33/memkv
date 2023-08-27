@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"memkv/config"
-	"memkv/core"
+	"memkv/internal/config"
+	"memkv/internal/core"
 	"net"
 	"strconv"
 )

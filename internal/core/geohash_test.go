@@ -2,7 +2,7 @@ package core_test
 
 import (
 	"math"
-	"memkv/core"
+	"memkv/internal/core"
 	"testing"
 )
 

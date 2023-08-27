@@ -10,9 +10,9 @@ import (
 	"sync/atomic"
 	"syscall"
 
-	"memkv/config"
-	"memkv/constant"
-	"memkv/core"
+	"memkv/internal/config"
+	"memkv/internal/constant"
+	"memkv/internal/core"
 )
 
 var eStatus int32 = constant.EngineStatus_WAITING

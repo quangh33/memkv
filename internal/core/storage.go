@@ -1,7 +1,7 @@
 package core
 
 import (
-	"memkv/config"
+	"memkv/internal/config"
 	"time"
 )
 

@@ -1,7 +1,7 @@
 package core
 
 import (
-	"memkv/constant"
+	"memkv/internal/constant"
 	"strconv"
 )
 

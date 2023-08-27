@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"memkv/config"
-	"memkv/server"
+	"memkv/internal/config"
+	"memkv/internal/server"
 	"os"
 	"os/signal"
 	"sync"

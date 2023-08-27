@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"memkv/constant"
+	"memkv/internal/constant"
 	"strings"
 )
 

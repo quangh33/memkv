@@ -1,6 +1,6 @@
 package core
 
-import "memkv/config"
+import "memkv/internal/config"
 
 func evictFirst() {
 	for k := range store {

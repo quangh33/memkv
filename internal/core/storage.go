@@ -49,7 +49,7 @@ func Get(k string) *Obj {
 }
 
 func Put(k string, obj *Obj) {
-	if len(store) >= config.KeyNummberLimit {
+	if len(store) >= config.KeyNumberLimit {
 		evict()
 	}
 	store[k] = obj

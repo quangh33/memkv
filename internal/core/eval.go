@@ -28,7 +28,7 @@ func evalSET(args []string) []byte {
 	}
 
 	Put(key, NewObj(value, ttlMs, oType, oEnc))
-	return constant.RESP_OK
+	return constant.RespOk
 }
 
 func evalGET(args []string) []byte {
@@ -39,11 +39,11 @@ func evalGET(args []string) []byte {
 	key := args[0]
 	obj := Get(key)
 	if obj == nil {
-		return constant.RESP_NIL
+		return constant.RespNil
 	}
 
 	if hasExpired(obj) {
-		return constant.RESP_NIL
+		return constant.RespNil
 	}
 
 	return Encode(obj.Value, false)
@@ -72,17 +72,17 @@ func evalTTL(args []string) []byte {
 	key := args[0]
 	obj := Get(key)
 	if obj == nil {
-		return constant.TTL_KEY_NOT_EXIST
+		return constant.TtlKeyNotExist
 	}
 
 	exp, isExpirySet := getExpiry(obj)
 	if !isExpirySet {
-		return constant.TTL_KEY_EXIST_NO_EXPIRE
+		return constant.TtlKeyExistNoExpire
 	}
 
 	remainMs := exp - uint64(time.Now().UnixMilli())
 	if remainMs < 0 {
-		return constant.TTL_KEY_NOT_EXIST
+		return constant.TtlKeyNotExist
 	}
 
 	return Encode(int64(remainMs/1000), false)
@@ -112,16 +112,16 @@ func evalEXPIRE(args []string) []byte {
 
 	obj := Get(key)
 	if obj == nil {
-		return constant.RESP_ZERO
+		return constant.RespZero
 	}
 
 	setExpiry(obj, ttlSec*1000)
-	return constant.RESP_ONE
+	return constant.RespOne
 }
 
 func evalBGREWRITEAOF(args []string) []byte {
 	DumpAllAOF()
-	return constant.RESP_OK
+	return constant.RespOk
 }
 
 func evalINCR(args []string) []byte {
@@ -131,15 +131,15 @@ func evalINCR(args []string) []byte {
 	key := args[0]
 	obj := Get(key)
 	if obj == nil {
-		obj = NewObj("0", constant.NO_EXPIRE, constant.OBJ_TYPE_STRING, constant.OBJ_ENCODING_INT)
+		obj = NewObj("0", constant.NoExpire, constant.ObjTypeString, constant.ObjEncodingInt)
 		Put(key, obj)
 	}
 
-	if err := assertType(obj.TypeEncoding, constant.OBJ_TYPE_STRING); err != nil {
+	if err := assertType(obj.TypeEncoding, constant.ObjTypeString); err != nil {
 		return Encode(err, false)
 	}
 
-	if err := assertEncoding(obj.TypeEncoding, constant.OBJ_ENCODING_INT); err != nil {
+	if err := assertEncoding(obj.TypeEncoding, constant.ObjEncodingInt); err != nil {
 		return Encode(err, false)
 	}
 

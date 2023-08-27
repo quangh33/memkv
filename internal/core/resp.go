@@ -110,7 +110,7 @@ func Encode(value interface{}, isSimpleString bool) []byte {
 		}
 		return []byte(fmt.Sprintf("*%d\r\n%s", len(v), buf.Bytes()))
 	default:
-		return constant.RESP_NIL
+		return constant.RespNil
 	}
 }
 

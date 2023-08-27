@@ -15,15 +15,15 @@ import (
 	"memkv/internal/core"
 )
 
-var eStatus int32 = constant.EngineStatus_WAITING
+var eStatus int32 = constant.EngineStatusWaiting
 
 func WaitForSignal(wg *sync.WaitGroup, signals chan os.Signal) {
 	defer wg.Done()
 	<-signals
-	for atomic.LoadInt32(&eStatus) == constant.EngineStatus_BUSY {
+	for atomic.LoadInt32(&eStatus) == constant.EngineStatusBusy {
 	}
 
-	if !atomic.CompareAndSwapInt32(&eStatus, constant.EngineStatus_WAITING, constant.EngineStatus_SHUTTING_DOWN) {
+	if !atomic.CompareAndSwapInt32(&eStatus, constant.EngineStatusWaiting, constant.EngineStatusShuttingDown) {
 		// rarely happen
 		log.Println("Engine is busy again. Try again!")
 		return
@@ -114,15 +114,15 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 		return err
 	}
 
-	for atomic.LoadInt32(&eStatus) != constant.EngineStatus_SHUTTING_DOWN {
+	for atomic.LoadInt32(&eStatus) != constant.EngineStatusShuttingDown {
 		// see if any FD is ready for an IO
 		nevents, e := syscall.EpollWait(epollFD, events[:], -1)
 		if e != nil {
 			continue
 		}
 
-		if !atomic.CompareAndSwapInt32(&eStatus, constant.EngineStatus_WAITING, constant.EngineStatus_BUSY) {
-			if eStatus == constant.EngineStatus_SHUTTING_DOWN {
+		if !atomic.CompareAndSwapInt32(&eStatus, constant.EngineStatusWaiting, constant.EngineStatusBusy) {
+			if eStatus == constant.EngineStatusShuttingDown {
 				return nil
 			}
 		}
@@ -161,7 +161,7 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 				}
 				responseRw(cmd, comm)
 			}
-			atomic.SwapInt32(&eStatus, constant.EngineStatus_WAITING)
+			atomic.SwapInt32(&eStatus, constant.EngineStatusWaiting)
 		}
 	}
 

@@ -134,3 +134,14 @@ func Interleave(x uint32, y uint32) uint64 {
 func Deinterleave(x uint64) (uint32, uint32) {
 	return squash(x), squash(x >> 1)
 }
+
+/*
+Compute sorted set score [min, max) we should query to get all the elements inside
+the specific are 'hash'.
+*/
+func GeohashGetScoreLimit(hash GeohashBits) (min GeoHashFix52Bits, max GeoHashFix52Bits) {
+	min = geohashAlign52Bits(hash)
+	hash.Bits++
+	max = geohashAlign52Bits(hash)
+	return
+}

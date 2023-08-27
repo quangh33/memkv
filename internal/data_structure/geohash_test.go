@@ -1,6 +1,7 @@
 package data_structure_test
 
 import (
+	"github.com/stretchr/testify/assert"
 	"math"
 	"memkv/internal/core"
 	"memkv/internal/data_structure"
@@ -31,9 +32,7 @@ func TestGeohashEncode(t *testing.T) {
 	for k, v := range cases {
 		value, _ := data_structure.GeohashEncode(normalGeoRange, k[0], k[1], data_structure.GEO_MAX_STEP)
 		output := core.Base32encoding.Encode(value.Bits)
-		if output != v {
-			t.Fail()
-		}
+		assert.EqualValues(t, v, output)
 	}
 }
 
@@ -64,9 +63,7 @@ func TestGeohashDecode(t *testing.T) {
 		}
 		// core.PrintBin(geohashBits.Bits)
 		long, lat := data_structure.GeohashDecode(normalGeoRange, geohashBits)
-		if data_structure.GeohashGetDistance(long, lat, expected[0], expected[1]) > 1 {
-			t.Fail()
-		}
+		assert.LessOrEqual(t, data_structure.GeohashGetDistance(long, lat, expected[0], expected[1]), 1.0)
 	}
 }
 
@@ -79,9 +76,7 @@ func TestInterleave(t *testing.T) {
 
 	for k, v := range cases {
 		value := data_structure.Interleave(k[0], k[1])
-		if v != value {
-			t.Fail()
-		}
+		assert.EqualValues(t, v, value)
 	}
 }
 
@@ -94,9 +89,8 @@ func TestDeinterleave(t *testing.T) {
 
 	for k, v := range cases {
 		even, odd := data_structure.Deinterleave(k)
-		if even != v[0] || odd != v[1] {
-			t.Fail()
-		}
+		assert.EqualValues(t, v[0], even)
+		assert.EqualValues(t, v[1], odd)
 	}
 }
 
@@ -113,9 +107,7 @@ func TestBase32Decode(t *testing.T) {
 	for _, x := range cases {
 		s := core.Base32encoding.Encode(x)
 		decode := core.Base32encoding.Decode(s)
-		if x>>2 != decode {
-			t.Fail()
-		}
+		assert.EqualValues(t, x>>2, decode)
 	}
 }
 
@@ -128,8 +120,6 @@ func TestGeohashGetDistance(t *testing.T) {
 
 	for points, dis := range cases {
 		output := data_structure.GeohashGetDistance(points[0], points[1], points[2], points[3])
-		if math.Abs(output-dis) > 1e-5 {
-			t.Fail()
-		}
+		assert.LessOrEqual(t, math.Abs(output-dis), 1e-5)
 	}
 }

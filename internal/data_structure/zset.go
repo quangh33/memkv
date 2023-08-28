@@ -37,6 +37,19 @@ func (zs *ZSet) Add(score float64, ele string, flag int) (int, int) {
 	return 1, ZAddOutAdded
 }
 
+/*
+Return 1 if element existed and was deleted, 0 otherwise
+*/
+func (zs *ZSet) Del(ele string) int {
+	score, exist := zs.dict[ele]
+	if !exist {
+		return 0
+	}
+	delete(zs.dict, ele)
+	zs.zskiplist.Delete(score, ele)
+	return 1
+}
+
 func CreateZSet() *ZSet {
 	zs := ZSet{
 		zskiplist: CreateSkiplist(),

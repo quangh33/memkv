@@ -83,3 +83,30 @@ func TestZSet_Add_AddDuplicateEleAndScore(t *testing.T) {
 	assert.EqualValues(t, ZAddOutNop, flagOut)
 	assert.True(t, ok)
 }
+
+func TestZSet_Del(t *testing.T) {
+	zs := CreateZSet()
+	ret, flagOut := zs.Add(20.0, "k2", 0)
+	assert.EqualValues(t, 1, ret)
+	assert.EqualValues(t, ZAddOutAdded, flagOut)
+	ret, flagOut = zs.Add(10.0, "k1", 0)
+	assert.EqualValues(t, 1, ret)
+	assert.EqualValues(t, ZAddOutAdded, flagOut)
+	ret, flagOut = zs.Add(30.0, "k3", 0)
+	assert.EqualValues(t, 1, ret)
+	assert.EqualValues(t, ZAddOutAdded, flagOut)
+
+	assert.EqualValues(t, 3, zs.zskiplist.length)
+	zs.Del("k1")
+	assert.EqualValues(t, 2, zs.zskiplist.length)
+	assert.EqualValues(t, 20.0, zs.zskiplist.head.levels[0].forward.score)
+	assert.EqualValues(t, "k2", zs.zskiplist.head.levels[0].forward.ele)
+	zs.Del("k3")
+	assert.EqualValues(t, 1, zs.zskiplist.length)
+	assert.EqualValues(t, 20.0, zs.zskiplist.head.levels[0].forward.score)
+	assert.EqualValues(t, "k2", zs.zskiplist.head.levels[0].forward.ele)
+	zs.Del("k2")
+	assert.EqualValues(t, 0, zs.zskiplist.length)
+	assert.Nil(t, zs.zskiplist.head.levels[0].forward)
+	assert.Nil(t, zs.zskiplist.tail)
+}

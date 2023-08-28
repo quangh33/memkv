@@ -48,6 +48,17 @@ func (sl *Skiplist) randomLevel() int {
 	return level
 }
 
+/*
+               /level 31: span=0 | forward\ ----> NULL
+               |....                      |
+		       |level 2: span=0 | forward | ----> NULL
+               |level 1: span=0 | forward | ----> NULL
+		       |ele                       |
+		       |score                     |
+	 NULL <--- |backward                  |
+               \head                      /
+*/
+
 func (sl *Skiplist) CreateNode(level int, score float64, ele string) *SkiplistNode {
 	res := &SkiplistNode{
 		ele:      ele,
@@ -134,8 +145,44 @@ func (sl *Skiplist) Insert(score float64, ele string) *SkiplistNode {
 	return x
 }
 
-func (sl *Skiplist) Delete(score float64, ele string) {
-	// TODO: implement detail
+func (sl *Skiplist) DeleteNode(x *SkiplistNode, update [SkiplistMaxLevel]*SkiplistNode) {
+	for i := 0; i < sl.level; i++ {
+		if update[i].levels[i].forward == x {
+			update[i].levels[i].span += x.levels[i].span - 1
+			update[i].levels[i].forward = x.levels[i].forward
+		} else {
+			update[i].levels[i].span--
+		}
+	}
+	if x.levels[0].forward != nil {
+		x.levels[0].forward.backward = x.backward
+	} else {
+		// x is tail
+		sl.tail = x.backward
+	}
+	for sl.level > 1 && sl.head.levels[sl.level-1].forward == nil {
+		sl.level--
+	}
+	sl.length--
+}
+
+func (sl *Skiplist) Delete(score float64, ele string) int {
+	update := [SkiplistMaxLevel]*SkiplistNode{}
+	x := sl.head
+	for i := sl.level - 1; i >= 0; i-- {
+		for x.levels[i].forward != nil && (x.levels[i].forward.score < score ||
+			(x.levels[i].forward.score == score &&
+				strings.Compare(x.levels[i].forward.ele, ele) == -1)) {
+			x = x.levels[i].forward
+		}
+		update[i] = x
+	}
+	x = x.levels[0].forward
+	if x != nil && x.score == score && strings.Compare(x.ele, ele) == 0 {
+		sl.DeleteNode(x, update)
+		return 1
+	}
+	return 0
 }
 
 func (sl *Skiplist) FindFirstInRange(min float64, max float64) *SkiplistNode {

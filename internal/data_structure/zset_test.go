@@ -144,4 +144,20 @@ func TestZSet_GetRank(t *testing.T) {
 	rank, score = zs.GetRank("k4", false)
 	assert.EqualValues(t, 3, rank)
 	assert.EqualValues(t, 40.0, score)
+
+	rank, score = zs.GetRank("k1", true)
+	assert.EqualValues(t, 3, rank)
+	assert.EqualValues(t, 10.0, score)
+
+	rank, score = zs.GetRank("k2", true)
+	assert.EqualValues(t, 2, rank)
+	assert.EqualValues(t, 15.0, score)
+
+	rank, score = zs.GetRank("k3", true)
+	assert.EqualValues(t, 1, rank)
+	assert.EqualValues(t, 30.0, score)
+
+	rank, score = zs.GetRank("k4", true)
+	assert.EqualValues(t, 0, rank)
+	assert.EqualValues(t, 40.0, score)
 }

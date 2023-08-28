@@ -114,3 +114,34 @@ func TestZSet_Del(t *testing.T) {
 	assert.Nil(t, zs.zskiplist.head.levels[0].forward)
 	assert.Nil(t, zs.zskiplist.tail)
 }
+
+func TestZSet_GetRank(t *testing.T) {
+	zs := CreateZSet()
+	_, flagOut := zs.Add(20.0, "k2", 0)
+	assert.EqualValues(t, ZAddOutAdded, flagOut)
+	_, flagOut = zs.Add(40.0, "k4", 0)
+	assert.EqualValues(t, ZAddOutAdded, flagOut)
+	_, flagOut = zs.Add(10.0, "k1", 0)
+	assert.EqualValues(t, ZAddOutAdded, flagOut)
+	_, flagOut = zs.Add(15.0, "k2", 0)
+	assert.EqualValues(t, ZAddOutUpdated, flagOut)
+	_, flagOut = zs.Add(30.0, "k3", 0)
+	assert.EqualValues(t, ZAddOutAdded, flagOut)
+
+	/* { (k1, 10), (k2, 15), (k3, 30), (k4, 40) } */
+	rank, score := zs.GetRank("k1", false)
+	assert.EqualValues(t, 0, rank)
+	assert.EqualValues(t, 10.0, score)
+
+	rank, score = zs.GetRank("k2", false)
+	assert.EqualValues(t, 1, rank)
+	assert.EqualValues(t, 15.0, score)
+
+	rank, score = zs.GetRank("k3", false)
+	assert.EqualValues(t, 2, rank)
+	assert.EqualValues(t, 30.0, score)
+
+	rank, score = zs.GetRank("k4", false)
+	assert.EqualValues(t, 3, rank)
+	assert.EqualValues(t, 40.0, score)
+}

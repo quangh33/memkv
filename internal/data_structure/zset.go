@@ -54,6 +54,27 @@ func (zs *ZSet) Del(ele string) int {
 	return 1
 }
 
+/*
+Returns the 0-based rank of the object or -1 if the object does not exist.
+If reverse is false, rank is computed considering as first element the one
+with the lowest score. If reverse is true, rank is computed considering as element with rank 0 the
+one with the highest score.
+*/
+func (zs *ZSet) GetRank(ele string, reverse bool) (rank int64, score float64) {
+	setSize := zs.zskiplist.length
+	score, exist := zs.dict[ele]
+	if !exist {
+		return -1, 0
+	}
+	rank = int64(zs.zskiplist.GetRank(score, ele))
+	if reverse {
+		rank = int64(setSize) - rank
+	} else {
+		rank--
+	}
+	return rank, score
+}
+
 func CreateZSet() *ZSet {
 	zs := ZSet{
 		zskiplist: CreateSkiplist(),

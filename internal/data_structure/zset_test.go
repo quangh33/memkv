@@ -18,6 +18,10 @@ func TestZSet_Add_NoOps(t *testing.T) {
 	ret, flagOut = zs.Add(20.0, "k1", ZAddInNX)
 	assert.EqualValues(t, 1, ret)
 	assert.EqualValues(t, ZAddOutNop, flagOut)
+
+	ret, flagOut = zs.Add(100.0, "", ZAddInNX)
+	assert.EqualValues(t, 0, ret)
+	assert.EqualValues(t, ZAddOutNop, flagOut)
 }
 
 func TestZSet_Add_AddNew(t *testing.T) {

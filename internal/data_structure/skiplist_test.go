@@ -38,6 +38,23 @@ func TestSkiplist_Insert(t *testing.T) {
 	}
 }
 
+func TestSkiplist_GetRank(t *testing.T) {
+	sl := CreateSkiplist()
+	sl.Insert(10, "k1")
+	sl.Insert(20, "k3")
+	sl.Insert(50, "k5")
+	sl.Insert(40, "k4")
+	sl.Insert(10, "k2")
+	sl.Insert(50, "k6")
+
+	assert.EqualValues(t, 1, sl.GetRank(10, "k1"))
+	assert.EqualValues(t, 2, sl.GetRank(10, "k2"))
+	assert.EqualValues(t, 3, sl.GetRank(20, "k3"))
+	assert.EqualValues(t, 4, sl.GetRank(40, "k4"))
+	assert.EqualValues(t, 5, sl.GetRank(50, "k5"))
+	assert.EqualValues(t, 6, sl.GetRank(50, "k6"))
+}
+
 func TestSkiplist_Delete(t *testing.T) {
 	sl := CreateSkiplist()
 	sl.Insert(10, "k1")

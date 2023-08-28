@@ -211,6 +211,29 @@ func (sl *Skiplist) UpdateScore(curScore float64, ele string, newScore float64) 
 	return newNode
 }
 
+/*
+Find the rank for an element by both score and key.
+Returns 0 when the element cannot be found, rank otherwise.
+Note that the rank is 1-based due to the span of zsl->header to the
+first element.
+*/
+func (sl *Skiplist) GetRank(score float64, ele string) uint32 {
+	x := sl.head
+	var rank uint32 = 0
+	for i := sl.level - 1; i >= 0; i-- {
+		for x.levels[i].forward != nil && (x.levels[i].forward.score < score ||
+			(x.levels[i].forward.score == score &&
+				strings.Compare(x.levels[i].forward.ele, ele) <= 0)) {
+			rank += x.levels[i].span
+			x = x.levels[i].forward
+		}
+		if x.score == score && strings.Compare(x.ele, ele) == 0 {
+			return rank
+		}
+	}
+	return 0
+}
+
 func (sl *Skiplist) FindFirstInRange(min float64, max float64) *SkiplistNode {
 	// TODO: implement detail
 	return nil

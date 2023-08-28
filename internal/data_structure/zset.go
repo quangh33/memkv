@@ -16,6 +16,10 @@ type ZSet struct {
 func (zs *ZSet) Add(score float64, ele string, flag int) (int, int) {
 	nx := flag & ZAddInNX
 	xx := flag & ZAddInXX
+
+	if len(ele) == 0 {
+		return 0, ZAddOutNop
+	}
 	if curScore, exist := zs.dict[ele]; exist {
 		if nx != 0 {
 			return 1, ZAddOutNop

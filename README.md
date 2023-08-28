@@ -1,5 +1,12 @@
 # A simple in-memory key-value database
 
+## How to run
+```
+  cd cmd/memkv
+  go run main.go
+  # on another terminal
+  redis-cli -p 8081
+```
 ## Supported features
 - Single-threaded architecture
 - Multiplexing IO for Linux using epoll
@@ -26,5 +33,5 @@
 - Bloom filter commands
 - Hyperloglog
 - Count-min sketch
-- Skiplist
-- Morris Counter
+- ZSET using Skiplist
+- Morris counter

@@ -185,6 +185,32 @@ func (sl *Skiplist) Delete(score float64, ele string) int {
 	return 0
 }
 
+/*
+This function assumes that the element must exist and must match 'score'
+*/
+func (sl *Skiplist) UpdateScore(curScore float64, ele string, newScore float64) *SkiplistNode {
+	update := [SkiplistMaxLevel]*SkiplistNode{}
+	x := sl.head
+	for i := sl.level - 1; i >= 0; i-- {
+		for x.levels[i].forward != nil && (x.levels[i].forward.score < curScore ||
+			(x.levels[i].forward.score == curScore &&
+				strings.Compare(x.levels[i].forward.ele, ele) == -1)) {
+			x = x.levels[i].forward
+		}
+		update[i] = x
+	}
+	x = x.levels[0].forward
+	if (x.backward == nil || x.backward.score < newScore) &&
+		(x.levels[0].forward == nil || x.levels[0].forward.score > newScore) {
+		x.score = newScore
+		return x
+	}
+
+	sl.DeleteNode(x, update)
+	newNode := sl.Insert(newScore, ele)
+	return newNode
+}
+
 func (sl *Skiplist) FindFirstInRange(min float64, max float64) *SkiplistNode {
 	// TODO: implement detail
 	return nil

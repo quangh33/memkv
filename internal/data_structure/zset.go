@@ -75,6 +75,10 @@ func (zs *ZSet) GetRank(ele string, reverse bool) (rank int64, score float64) {
 	return rank, score
 }
 
+func (zs *ZSet) Len() int {
+	return len(zs.dict)
+}
+
 func CreateZSet() *ZSet {
 	zs := ZSet{
 		zskiplist: CreateSkiplist(),

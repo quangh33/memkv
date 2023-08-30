@@ -203,6 +203,42 @@ func evalZADD(args []string) []byte {
 	return Encode(count, false)
 }
 
+func evalZRANK(args []string) []byte {
+	if len(args) != 2 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZRANK' command"), false)
+	}
+	key, member := args[0], args[1]
+	zset, exist := zsetStore[key]
+	if !exist {
+		return constant.RespNil
+	}
+	rank, _ := zset.GetRank(member, false)
+	return Encode(rank, false)
+}
+
+func evalZREM(args []string) []byte {
+	if len(args) < 2 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZREM' command"), false)
+	}
+	key := args[0]
+	zset, exist := zsetStore[key]
+	if !exist {
+		return constant.RespZero
+	}
+	deleted := 0
+	for i := 1; i < len(args); i++ {
+		ret := zset.Del(args[i])
+		if ret == 1 {
+			deleted++
+		}
+		if zset.Len() == 0 {
+			delete(zsetStore, key)
+			break
+		}
+	}
+	return Encode(deleted, false)
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
@@ -225,6 +261,10 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalINCR(cmd.Args)
 	case "ZADD":
 		res = evalZADD(cmd.Args)
+	case "ZRANK":
+		res = evalZRANK(cmd.Args)
+	case "ZREM":
+		res = evalZREM(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

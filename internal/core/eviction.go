@@ -3,7 +3,7 @@ package core
 import "memkv/internal/config"
 
 func evictFirst() {
-	for k := range store {
+	for k := range keyValueStore {
 		Del(k)
 		return
 	}

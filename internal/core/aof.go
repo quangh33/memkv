@@ -14,7 +14,7 @@ func DumpAllAOF() {
 		fmt.Print("error when creating AOF file: ", err)
 		return
 	}
-	for k, o := range store {
+	for k, o := range keyValueStore {
 		cmd := fmt.Sprintf("SET %s %s", k, o.Value)
 		tokens := strings.Split(cmd, " ")
 		f.Write(Encode(tokens, false))

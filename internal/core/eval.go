@@ -179,10 +179,10 @@ func evalZADD(args []string) []byte {
 		return Encode(errors.New(fmt.Sprintf("(error) Wrong number of (score, member) arg: %d", numScoreEleArgs)), false)
 	}
 
-	zset, exist := zsetMap[key]
+	zset, exist := zsetStore[key]
 	if !exist {
 		zset = data_structure.CreateZSet()
-		zsetMap[key] = zset
+		zsetStore[key] = zset
 	}
 
 	count := 0

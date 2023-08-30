@@ -22,6 +22,7 @@
   - DEL
   - EXPIRE
   - INCR
+  - ZADD
 
 ## WIP
 - Geohash commands: 

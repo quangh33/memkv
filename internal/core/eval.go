@@ -239,6 +239,22 @@ func evalZREM(args []string) []byte {
 	return Encode(deleted, false)
 }
 
+func evalZSCORE(args []string) []byte {
+	if len(args) != 2 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZSCORE' command"), false)
+	}
+	key, member := args[0], args[1]
+	zset, exist := zsetStore[key]
+	if !exist {
+		return constant.RespNil
+	}
+	ret, score := zset.GetScore(member)
+	if ret == 0 {
+		return constant.RespNil
+	}
+	return Encode(fmt.Sprintf("%f", score), false)
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
@@ -265,6 +281,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalZRANK(cmd.Args)
 	case "ZREM":
 		res = evalZREM(cmd.Args)
+	case "ZSCORE":
+		res = evalZSCORE(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

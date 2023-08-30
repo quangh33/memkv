@@ -75,6 +75,14 @@ func (zs *ZSet) GetRank(ele string, reverse bool) (rank int64, score float64) {
 	return rank, score
 }
 
+func (zs *ZSet) GetScore(ele string) (int, float64) {
+	score, exist := zs.dict[ele]
+	if !exist {
+		return -1, 0
+	}
+	return 0, score
+}
+
 func (zs *ZSet) Len() int {
 	return len(zs.dict)
 }

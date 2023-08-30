@@ -25,6 +25,7 @@
   - ZADD
   - ZRANK
   - ZREM
+  - ZSCORE
 
 ## WIP
 - Geohash commands: 

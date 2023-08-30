@@ -34,10 +34,10 @@
   - [ ] GEODIST
   - [ ] GEOHASH
   - [ ] GEOSEARCH
-- Ordered set using Skiplist
 ## Todo
-- Approx LRU eviction
 - Bloom filter commands
 - Hyperloglog
 - Count-min sketch
 - Morris counter
+- Cuckoo filter
+- Approx LRU eviction

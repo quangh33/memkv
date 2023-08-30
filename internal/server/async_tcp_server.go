@@ -22,12 +22,6 @@ func WaitForSignal(wg *sync.WaitGroup, signals chan os.Signal) {
 	<-signals
 	for atomic.LoadInt32(&eStatus) == constant.EngineStatusBusy {
 	}
-
-	if !atomic.CompareAndSwapInt32(&eStatus, constant.EngineStatusWaiting, constant.EngineStatusShuttingDown) {
-		// rarely happen
-		log.Println("Engine is busy again. Try again!")
-		return
-	}
 	core.Shutdown()
 	os.Exit(0)
 }
@@ -157,6 +151,7 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 					syscall.Close(int(events[i].Fd))
 					client_number--
 					log.Println("client quit")
+					atomic.SwapInt32(&eStatus, constant.EngineStatusWaiting)
 					continue
 				}
 				responseRw(cmd, comm)

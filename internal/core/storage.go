@@ -2,6 +2,7 @@ package core
 
 import (
 	"memkv/internal/config"
+	"memkv/internal/data_structure"
 	"time"
 )
 
@@ -17,9 +18,12 @@ var store map[string]*Obj
 // map from expired obj to its expire time
 var expires map[*Obj]uint64
 
+var zsetMap map[string]*data_structure.ZSet
+
 func init() {
 	store = make(map[string]*Obj)
 	expires = make(map[*Obj]uint64)
+	zsetMap = make(map[string]*data_structure.ZSet)
 }
 
 func NewObj(value interface{}, ttlMs int64, oType uint8, oEnc uint8) *Obj {

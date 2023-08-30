@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"memkv/internal/constant"
+	"memkv/internal/data_structure"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -150,6 +152,57 @@ func evalINCR(args []string) []byte {
 	return Encode(i, false)
 }
 
+func evalZADD(args []string) []byte {
+	if len(args) < 3 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZADD' command"), false)
+	}
+	key := args[0]
+	scoreIndex := 1
+	flags := 0
+	for scoreIndex < len(args) {
+		if strings.ToLower(args[scoreIndex]) == "nx" {
+			flags |= data_structure.ZAddInNX
+		} else if strings.ToLower(args[scoreIndex]) == "xx" {
+			flags |= data_structure.ZAddInXX
+		} else {
+			break
+		}
+		scoreIndex++
+	}
+	nx := (flags & data_structure.ZAddInNX) != 0
+	xx := (flags & data_structure.ZAddInXX) != 0
+	if nx && xx {
+		return Encode(errors.New("(error) Cannot have both NN and XX flag for 'ZADD' command"), false)
+	}
+	numScoreEleArgs := len(args) - scoreIndex
+	if numScoreEleArgs%2 == 1 || numScoreEleArgs == 0 {
+		return Encode(errors.New(fmt.Sprintf("(error) Wrong number of (score, member) arg: %d", numScoreEleArgs)), false)
+	}
+
+	zset, exist := zsetMap[key]
+	if !exist {
+		zset = data_structure.CreateZSet()
+		zsetMap[key] = zset
+	}
+
+	count := 0
+	for i := scoreIndex; i < len(args); i += 2 {
+		ele := args[i+1]
+		score, err := strconv.ParseFloat(args[i], 64)
+		if err != nil {
+			return Encode(errors.New("(error) Score must be floating point number"), false)
+		}
+		ret, outFlag := zset.Add(score, ele, flags)
+		if ret != 1 {
+			return Encode(errors.New("Error when adding element"), false)
+		}
+		if outFlag != data_structure.ZAddOutNop {
+			count++
+		}
+	}
+	return Encode(count, false)
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
@@ -170,6 +223,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalBGREWRITEAOF(cmd.Args)
 	case "INCR":
 		res = evalINCR(cmd.Args)
+	case "ZADD":
+		res = evalZADD(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

@@ -26,6 +26,7 @@
   - ZRANK
   - ZREM
   - ZSCORE
+  - ZCARD
 
 ## WIP
 - Geohash commands: 

@@ -2,7 +2,7 @@
 
 ## How to run
 ```
-  cd cmd/memkv
+  cd cmd
   go run main.go
   # on another terminal
   redis-cli -p 8081

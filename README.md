@@ -23,6 +23,8 @@
   - EXPIRE
   - INCR
   - ZADD
+  - ZRANK
+  - ZREM
 
 ## WIP
 - Geohash commands: 

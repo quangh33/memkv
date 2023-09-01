@@ -30,7 +30,7 @@ func TestGeohashEncode(t *testing.T) {
 		MaxLong: 180,
 	}
 	for k, v := range cases {
-		value, _ := data_structure.GeohashEncode(normalGeoRange, k[0], k[1], data_structure.GEO_MAX_STEP)
+		value, _ := data_structure.GeohashEncode(normalGeoRange, k[0], k[1], data_structure.GeoMaxStep)
 		output := core.Base32encoding.Encode(value.Bits)
 		assert.EqualValues(t, v, output)
 	}
@@ -58,7 +58,7 @@ func TestGeohashDecode(t *testing.T) {
 	}
 	for hash, expected := range cases {
 		geohashBits := data_structure.GeohashBits{
-			Step: data_structure.GEO_MAX_STEP,
+			Step: data_structure.GeoMaxStep,
 			Bits: core.Base32encoding.Decode(hash),
 		}
 		// core.PrintBin(geohashBits.Bits)

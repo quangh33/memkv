@@ -27,10 +27,10 @@
   - ZREM
   - ZSCORE
   - ZCARD
-
+  - GEOADD
 ## WIP
 - Geohash commands: 
-  - [ ] GEOADD
+  - [x] GEOADD
   - [ ] GEODIST
   - [ ] GEOHASH
   - [ ] GEOSEARCH

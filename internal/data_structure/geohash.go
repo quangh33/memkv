@@ -15,7 +15,7 @@ const DR float64 = math.Pi / 180.0
 const EarthRadiusInMeters float64 = 6372797.560856
 
 // 52-bits gives us accuracy down to 0.6m
-const GEO_MAX_STEP uint8 = 26
+const GeoMaxStep uint8 = 26
 
 type GeohashBits struct {
 	Step uint8
@@ -27,6 +27,13 @@ type GeohashRange struct {
 	MaxLat  float64
 	MinLong float64
 	MaxLong float64
+}
+
+var GeohashCoordRange = GeohashRange{
+	MinLat:  GeoLatMin,
+	MaxLat:  GeoLatMax,
+	MinLong: GeoLongMin,
+	MaxLong: GeoLongMax,
 }
 
 func GeohashEncode(geohashRange GeohashRange, long float64, lat float64, step uint8) (*GeohashBits, error) {
@@ -42,7 +49,7 @@ func GeohashEncode(geohashRange GeohashRange, long float64, lat float64, step ui
 
 	latOffset := (lat - geohashRange.MinLat) / (geohashRange.MaxLat - geohashRange.MinLat)
 	longOffset := (long - geohashRange.MinLong) / (geohashRange.MaxLong - geohashRange.MinLong)
-	exp2Step := float64(1 << GEO_MAX_STEP)
+	exp2Step := float64(1 << GeoMaxStep)
 	latOffset *= exp2Step
 	longOffset *= exp2Step
 	// lat is at even position, long is at odd position
@@ -140,8 +147,8 @@ Compute sorted set score [min, max) we should query to get all the elements insi
 the specific are 'hash'.
 */
 func GeohashGetScoreLimit(hash GeohashBits) (min GeoHashFix52Bits, max GeoHashFix52Bits) {
-	min = geohashAlign52Bits(hash)
+	min = GeohashAlign52Bits(hash)
 	hash.Bits++
-	max = geohashAlign52Bits(hash)
+	max = GeohashAlign52Bits(hash)
 	return
 }

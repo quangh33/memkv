@@ -25,4 +25,9 @@ func TestEvalGEOADD(t *testing.T) {
 	zset, exist := zsetStore["vn"]
 	assert.True(t, exist)
 	assert.EqualValues(t, 3, zset.Len())
+
+	res, err = Decode(evalGEOADD([]string{"vn"}))
+	assert.EqualValues(t, "(error) ERR wrong number of arguments for 'GEOADD' command", res)
+	res, err = Decode(evalGEOADD([]string{"vn", "-10", "20", "p4", "20"}))
+	assert.EqualValues(t, "(error) ERR wrong number of arguments for 'GEOADD' command", res)
 }

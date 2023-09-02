@@ -31,14 +31,14 @@ type GeohashRange struct {
 }
 
 type GeohashNeighbors struct {
-	north     GeohashBits
-	east      GeohashBits
-	west      GeohashBits
-	south     GeohashBits
-	northEast GeohashBits
-	southEast GeohashBits
-	northWest GeohashBits
-	southWest GeohashBits
+	North     GeohashBits
+	East      GeohashBits
+	West      GeohashBits
+	South     GeohashBits
+	NorthEast GeohashBits
+	SouthEast GeohashBits
+	NorthWest GeohashBits
+	SouthWest GeohashBits
 }
 
 type GeohashArea struct {
@@ -204,9 +204,9 @@ func GeohashGetScoreLimit(hash GeohashBits) (min GeoHashFix52Bits, max GeoHashFi
 }
 
 /* Move left/right 1 step */
-func GeohashMoveX(hash GeohashBits, d int8) GeohashBits {
+func GeohashMoveX(hash *GeohashBits, d int8) {
 	if d == 0 {
-		return hash
+		return
 	}
 
 	x := hash.Bits & 0xaaaaaaaaaaaaaaaa
@@ -221,13 +221,12 @@ func GeohashMoveX(hash GeohashBits, d int8) GeohashBits {
 	}
 	x &= 0xaaaaaaaaaaaaaaaa >> (64 - hash.Step*2)
 	hash.Bits = x | y
-	return hash
 }
 
 /* Move up/down 1 step */
-func GeohashMoveY(hash GeohashBits, d int8) GeohashBits {
+func GeohashMoveY(hash *GeohashBits, d int8) {
 	if d == 0 {
-		return hash
+		return
 	}
 
 	x := hash.Bits & 0xaaaaaaaaaaaaaaaa
@@ -242,5 +241,36 @@ func GeohashMoveY(hash GeohashBits, d int8) GeohashBits {
 	}
 	y &= 0x5555555555555555 >> (64 - hash.Step*2)
 	hash.Bits = x | y
-	return hash
+}
+
+func (hash GeohashBits) GetNeighbors() GeohashNeighbors {
+	ret := GeohashNeighbors{
+		North:     hash,
+		East:      hash,
+		West:      hash,
+		South:     hash,
+		NorthEast: hash,
+		SouthEast: hash,
+		NorthWest: hash,
+		SouthWest: hash,
+	}
+
+	GeohashMoveX(&ret.East, 1)
+	GeohashMoveX(&ret.West, -1)
+	GeohashMoveY(&ret.North, 1)
+	GeohashMoveY(&ret.South, -1)
+
+	GeohashMoveX(&ret.NorthWest, -1)
+	GeohashMoveY(&ret.NorthWest, 1)
+
+	GeohashMoveX(&ret.NorthEast, 1)
+	GeohashMoveY(&ret.NorthEast, 1)
+
+	GeohashMoveX(&ret.SouthEast, 1)
+	GeohashMoveY(&ret.SouthEast, -1)
+
+	GeohashMoveX(&ret.SouthWest, -1)
+	GeohashMoveY(&ret.SouthWest, -1)
+
+	return ret
 }

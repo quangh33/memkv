@@ -123,46 +123,49 @@ func TestGeohashMoveX(t *testing.T) {
 		Step: 2,
 		Bits: 0b1001,
 	}
-	res := data_structure.GeohashMoveX(hash, 1)
-	assert.EqualValues(t, 0b1001, hash.Bits)
-	assert.EqualValues(t, 0b1011, res.Bits)
-	res = data_structure.GeohashMoveX(hash, -1)
-	assert.EqualValues(t, 0b11, res.Bits)
+	data_structure.GeohashMoveX(&hash, 1)
+	assert.EqualValues(t, 0b1011, hash.Bits)
+	hash = data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1001,
+	}
+	data_structure.GeohashMoveX(&hash, -1)
+	assert.EqualValues(t, 0b11, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 3,
 		Bits: 0b101010,
 	}
-	res = data_structure.GeohashMoveX(hash, -1)
-	assert.EqualValues(t, 0b101000, res.Bits)
+	data_structure.GeohashMoveX(&hash, -1)
+	assert.EqualValues(t, 0b101000, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 3,
 		Bits: 0b101010,
 	}
-	res = data_structure.GeohashMoveX(hash, 1)
-	assert.EqualValues(t, 0b0, res.Bits)
+	data_structure.GeohashMoveX(&hash, 1)
+	assert.EqualValues(t, 0b0, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 3,
 		Bits: 0b101111,
 	}
-	res = data_structure.GeohashMoveX(hash, 1)
-	assert.EqualValues(t, 0b101, res.Bits)
+	data_structure.GeohashMoveX(&hash, 1)
+	assert.EqualValues(t, 0b101, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 2,
 		Bits: 0b1011,
 	}
-	res = data_structure.GeohashMoveX(hash, -1)
-	assert.EqualValues(t, 0b1001, res.Bits)
+	data_structure.GeohashMoveX(&hash, -1)
+	assert.EqualValues(t, 0b1001, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 2,
 		Bits: 0b1011,
 	}
-	res = data_structure.GeohashMoveX(hash, 1)
-	assert.EqualValues(t, 0b1, res.Bits)
+	data_structure.GeohashMoveX(&hash, 1)
+	assert.EqualValues(t, 0b1, hash.Bits)
 }
 
 func TestGeohashMoveY(t *testing.T) {
@@ -170,44 +173,63 @@ func TestGeohashMoveY(t *testing.T) {
 		Step: 2,
 		Bits: 0b1001,
 	}
-	res := data_structure.GeohashMoveY(hash, 1)
-	assert.EqualValues(t, 0b1001, hash.Bits)
-	assert.EqualValues(t, 0b1100, res.Bits)
-	res = data_structure.GeohashMoveY(hash, -1)
-	assert.EqualValues(t, 0b1000, res.Bits)
+	data_structure.GeohashMoveY(&hash, 1)
+	assert.EqualValues(t, 0b1100, hash.Bits)
+	hash = data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1001,
+	}
+	data_structure.GeohashMoveY(&hash, -1)
+	assert.EqualValues(t, 0b1000, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 3,
 		Bits: 0b101010,
 	}
-	res = data_structure.GeohashMoveY(hash, -1)
-	assert.EqualValues(t, 0b111111, res.Bits)
+	data_structure.GeohashMoveY(&hash, -1)
+	assert.EqualValues(t, 0b111111, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 3,
 		Bits: 0b101010,
 	}
-	res = data_structure.GeohashMoveY(hash, 1)
-	assert.EqualValues(t, 0b101011, res.Bits)
+	data_structure.GeohashMoveY(&hash, 1)
+	assert.EqualValues(t, 0b101011, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 3,
 		Bits: 0b101111,
 	}
-	res = data_structure.GeohashMoveY(hash, 1)
-	assert.EqualValues(t, 0b111010, res.Bits)
+	data_structure.GeohashMoveY(&hash, 1)
+	assert.EqualValues(t, 0b111010, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 2,
 		Bits: 0b1011,
 	}
-	res = data_structure.GeohashMoveY(hash, -1)
-	assert.EqualValues(t, 0b1010, res.Bits)
+	data_structure.GeohashMoveY(&hash, -1)
+	assert.EqualValues(t, 0b1010, hash.Bits)
 
 	hash = data_structure.GeohashBits{
 		Step: 2,
 		Bits: 0b1011,
 	}
-	res = data_structure.GeohashMoveY(hash, 1)
-	assert.EqualValues(t, 0b1110, res.Bits)
+	data_structure.GeohashMoveY(&hash, 1)
+	assert.EqualValues(t, 0b1110, hash.Bits)
+}
+
+func TestGeohashBits_GetNeighbors(t *testing.T) {
+	hash := data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1001,
+	}
+	ret := hash.GetNeighbors()
+	assert.EqualValues(t, 0b1100, ret.North.Bits)
+	assert.EqualValues(t, 0b1011, ret.East.Bits)
+	assert.EqualValues(t, 0b1000, ret.South.Bits)
+	assert.EqualValues(t, 0b0011, ret.West.Bits)
+	assert.EqualValues(t, 0b1110, ret.NorthEast.Bits)
+	assert.EqualValues(t, 0b1010, ret.SouthEast.Bits)
+	assert.EqualValues(t, 0b0010, ret.SouthWest.Bits)
+	assert.EqualValues(t, 0b0110, ret.NorthWest.Bits)
 }

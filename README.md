@@ -29,11 +29,12 @@
   - ZCARD
   - GEOADD
   - GEODIST
+  - GEOHASH
 ## WIP
 - Geohash commands: 
   - [x] GEOADD
   - [x] GEODIST
-  - [ ] GEOHASH
+  - [x] GEOHASH
   - [ ] GEOSEARCH
 ## Todo
 - Bloom filter commands

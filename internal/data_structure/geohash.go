@@ -36,6 +36,13 @@ var GeohashCoordRange = GeohashRange{
 	MaxLong: GeoLongMax,
 }
 
+var GeohashIdealRange = GeohashRange{
+	MinLat:  -90,
+	MaxLat:  90,
+	MinLong: -180,
+	MaxLong: 180,
+}
+
 func GeohashEncode(geohashRange GeohashRange, long float64, lat float64, step uint8) (*GeohashBits, error) {
 	if long > geohashRange.MaxLong || long < geohashRange.MinLong ||
 		lat > geohashRange.MaxLat || lat < geohashRange.MinLat {

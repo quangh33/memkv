@@ -65,3 +65,20 @@ func TestEvalGEODIST(t *testing.T) {
 	assert.Nil(t, err)
 	assert.LessOrEqual(t, math.Abs(dist-3041), 1.0)
 }
+
+func TestEvalGeoHash(t *testing.T) {
+	evalGEOADD([]string{"vn", "13.361389", "38.115556", "p1"})
+	evalGEOADD([]string{"vn", "15.087269", "37.502669", "p2"})
+	evalGEOADD([]string{"vn", "100", "80", "p3"})
+	evalGEOADD([]string{"vn", "40", "-20", "p4"})
+	evalGEOADD([]string{"vn", "-20", "39", "p5"})
+	ret, err := Decode(evalGEOHASH([]string{"vn", "p1", "p2", "p3", "p4", "p5", "p6"}))
+	expected := []string{"sqc8b49rny0", "sqdtr74hyu0", "ynpp5e9cbc0", "kukqnpp5e90", "ewcvbgsrqn0", ""}
+	assert.Nil(t, err)
+	assert.ElementsMatch(t, expected, ret)
+
+	ret, err = Decode(evalGEOHASH([]string{"not_exist"}))
+	assert.Nil(t, err)
+	expected = []string{}
+	assert.ElementsMatch(t, expected, ret)
+}

@@ -343,6 +343,39 @@ func evalGEODIST(args []string) []byte {
 	return Encode(fmt.Sprintf("%f", dist), false)
 }
 
+func evalGEOHASH(args []string) []byte {
+	if len(args) < 1 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEOHASH' command"), false)
+	}
+	if len(args) == 1 {
+		return constant.RespEmptyArray
+	}
+	key := args[0]
+	zset, exist := zsetStore[key]
+	if !exist {
+		return constant.RespNil
+	}
+	var res []string
+	for i := 1; i < len(args); i++ {
+		member := args[i]
+		err, score := zset.GetScore(member)
+		if err != 0 {
+			res = append(res, "")
+			continue
+		}
+		scoreGeohashBit := data_structure.GeohashBits{
+			Step: data_structure.GeoMaxStep,
+			Bits: uint64(score),
+		}
+		lon, lat := data_structure.GeohashDecode(data_structure.GeohashCoordRange, scoreGeohashBit)
+		value, _ := data_structure.GeohashEncode(data_structure.GeohashIdealRange, lon, lat, data_structure.GeoMaxStep)
+		hash := Base32encoding.Encode(value.Bits)
+		res = append(res, hash)
+	}
+	fmt.Println(res)
+	return Encode(res, false)
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
@@ -377,6 +410,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalGEOADD(cmd.Args)
 	case "GEODIST":
 		res = evalGEODIST(cmd.Args)
+	case "GEOHASH":
+		res = evalGEOHASH(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

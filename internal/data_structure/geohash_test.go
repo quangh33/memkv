@@ -23,14 +23,8 @@ func TestGeohashEncode(t *testing.T) {
 		[2]float64{-180, -85}:             "00bh2n0p050",
 	}
 
-	normalGeoRange := data_structure.GeohashRange{
-		MinLat:  -90,
-		MaxLat:  90,
-		MinLong: -180,
-		MaxLong: 180,
-	}
 	for k, v := range cases {
-		value, _ := data_structure.GeohashEncode(normalGeoRange, k[0], k[1], data_structure.GeoMaxStep)
+		value, _ := data_structure.GeohashEncode(data_structure.GeohashIdealRange, k[0], k[1], data_structure.GeoMaxStep)
 		output := core.Base32encoding.Encode(value.Bits)
 		assert.EqualValues(t, v, output)
 	}

@@ -54,14 +54,13 @@ func GeohashEncode(geohashRange GeohashRange, long float64, lat float64, step ui
 	longOffset *= exp2Step
 	// lat is at even position, long is at odd position
 	res.Bits = Interleave(uint32(latOffset), uint32(longOffset))
+	res.Bits = uint64(GeohashAlign52Bits(*res))
 	return res, nil
 }
 
 func GeohashDecode(geohashRange GeohashRange, hash GeohashBits) (long float64, lat float64) {
 	var step = hash.Step
 	latBits, longBits := Deinterleave(hash.Bits)
-	latBits = latBits << 1
-	longBits = longBits << 1
 	latScale := geohashRange.MaxLat - geohashRange.MinLat
 	longScale := geohashRange.MaxLong - geohashRange.MinLong
 	exp2Step := 1 << step

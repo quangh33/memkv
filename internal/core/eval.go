@@ -203,34 +203,6 @@ func evalZADD(args []string) []byte {
 	return Encode(count, false)
 }
 
-func evalGEOADD(args []string) []byte {
-	if len(args) < 4 || len(args)%3 != 1 {
-		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEOADD' command"), false)
-	}
-
-	key := args[0]
-	zaddArgs := []string{key}
-	for i := 1; i < len(args); i += 3 {
-		lon, err := strconv.ParseFloat(args[i], 64)
-		if err != nil {
-			return Encode(errors.New(fmt.Sprintf("lon value must be a floating point number %s\n", args[i])), false)
-		}
-		lat, err := strconv.ParseFloat(args[i+1], 64)
-		if err != nil {
-			return Encode(errors.New(fmt.Sprintf("lat value must be a floating point number %s\n", args[i+1])), false)
-		}
-		member := args[i+2]
-		hash, err := data_structure.GeohashEncode(data_structure.GeohashCoordRange, lon, lat, data_structure.GeoMaxStep)
-		if err != nil {
-			return Encode(err, false)
-		}
-		bits := data_structure.GeohashAlign52Bits(*hash)
-		zaddArgs = append(zaddArgs, fmt.Sprintf("%d", bits))
-		zaddArgs = append(zaddArgs, member)
-	}
-	return evalZADD(zaddArgs)
-}
-
 func evalZRANK(args []string) []byte {
 	if len(args) != 2 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZRANK' command"), false)
@@ -295,6 +267,82 @@ func evalZCARD(args []string) []byte {
 	return Encode(zset.Len(), false)
 }
 
+func evalGEOADD(args []string) []byte {
+	if len(args) < 4 || len(args)%3 != 1 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEOADD' command"), false)
+	}
+
+	key := args[0]
+	zaddArgs := []string{key}
+	for i := 1; i < len(args); i += 3 {
+		lon, err := strconv.ParseFloat(args[i], 64)
+		if err != nil {
+			return Encode(errors.New(fmt.Sprintf("lon value must be a floating point number %s\n", args[i])), false)
+		}
+		lat, err := strconv.ParseFloat(args[i+1], 64)
+		if err != nil {
+			return Encode(errors.New(fmt.Sprintf("lat value must be a floating point number %s\n", args[i+1])), false)
+		}
+		member := args[i+2]
+		hash, err := data_structure.GeohashEncode(data_structure.GeohashCoordRange, lon, lat, data_structure.GeoMaxStep)
+		if err != nil {
+			return Encode(err, false)
+		}
+		bits := data_structure.GeohashAlign52Bits(*hash)
+		zaddArgs = append(zaddArgs, fmt.Sprintf("%d", bits))
+		zaddArgs = append(zaddArgs, member)
+	}
+	return evalZADD(zaddArgs)
+}
+
+/*
+The distance is computed assuming that the Earth is a perfect sphere, so errors up to 0.5% are possible in edge cases.
+*/
+func evalGEODIST(args []string) []byte {
+	if !(len(args) == 3 || len(args) == 4) {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEODIST' command"), false)
+	}
+	key, mem1, mem2 := args[0], args[1], args[2]
+	var unit float64 = 1
+	if len(args) == 4 {
+		args[3] = strings.ToLower(args[3])
+		if args[3] == "km" {
+			unit = 1000
+		} else if args[3] == "ft" {
+			unit = 0.3048
+		} else if args[3] == "mi" {
+			unit = 1609.34
+		} else {
+			return Encode(errors.New("unsupported unit provided. please use M, KM, FT, MI"), false)
+		}
+	}
+
+	zset, exist := zsetStore[key]
+	if !exist {
+		return constant.RespNil
+	}
+	err, score1 := zset.GetScore(mem1)
+	if err != 0 {
+		return constant.RespNil
+	}
+	err, score2 := zset.GetScore(mem2)
+	if err != 0 {
+		return constant.RespNil
+	}
+	score1GeohashBit := data_structure.GeohashBits{
+		Step: data_structure.GeoMaxStep,
+		Bits: uint64(score1),
+	}
+	lon1, lat1 := data_structure.GeohashDecode(data_structure.GeohashCoordRange, score1GeohashBit)
+	score2GeohashBit := data_structure.GeohashBits{
+		Step: data_structure.GeoMaxStep,
+		Bits: uint64(score2),
+	}
+	lon2, lat2 := data_structure.GeohashDecode(data_structure.GeohashCoordRange, score2GeohashBit)
+	dist := data_structure.GeohashGetDistance(lon1, lat1, lon2, lat2) / unit
+	return Encode(fmt.Sprintf("%f", dist), false)
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
@@ -327,6 +375,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalZCARD(cmd.Args)
 	case "GEOADD":
 		res = evalGEOADD(cmd.Args)
+	case "GEODIST":
+		res = evalGEODIST(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

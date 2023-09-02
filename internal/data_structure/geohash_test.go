@@ -59,9 +59,9 @@ func TestGeohashDecode(t *testing.T) {
 	for hash, expected := range cases {
 		geohashBits := data_structure.GeohashBits{
 			Step: data_structure.GeoMaxStep,
-			Bits: core.Base32encoding.Decode(hash),
+			Bits: core.Base32encoding.Decode(hash) << 2,
+			// need to shift-left 2 because base32 decode returns a 50bits value
 		}
-		// core.PrintBin(geohashBits.Bits)
 		long, lat := data_structure.GeohashDecode(normalGeoRange, geohashBits)
 		assert.LessOrEqual(t, data_structure.GeohashGetDistance(long, lat, expected[0], expected[1]), 1.0)
 	}

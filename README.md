@@ -28,10 +28,11 @@
   - ZSCORE
   - ZCARD
   - GEOADD
+  - GEODIST
 ## WIP
 - Geohash commands: 
   - [x] GEOADD
-  - [ ] GEODIST
+  - [x] GEODIST
   - [ ] GEOHASH
   - [ ] GEOSEARCH
 ## Todo

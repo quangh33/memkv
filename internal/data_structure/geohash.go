@@ -36,7 +36,7 @@ var GeohashCoordRange = GeohashRange{
 	MaxLong: GeoLongMax,
 }
 
-var GeohashIdealRange = GeohashRange{
+var GeohashStandardRange = GeohashRange{
 	MinLat:  -90,
 	MaxLat:  90,
 	MinLong: -180,

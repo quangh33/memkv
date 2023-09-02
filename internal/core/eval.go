@@ -368,7 +368,13 @@ func evalGEOHASH(args []string) []byte {
 			Bits: uint64(score),
 		}
 		lon, lat := data_structure.GeohashDecode(data_structure.GeohashCoordRange, scoreGeohashBit)
-		value, _ := data_structure.GeohashEncode(data_structure.GeohashIdealRange, lon, lat, data_structure.GeoMaxStep)
+		/* The internal format we use for geocoding is a bit different
+		 * than the standard, since we use as initial latitude range
+		 * -85,85, while the normal geohashing algorithm uses -90,90.
+		 * So we have to decode our position and re-encode using the
+		 * standard ranges in order to output a valid geohash string.
+		 */
+		value, _ := data_structure.GeohashEncode(data_structure.GeohashStandardRange, lon, lat, data_structure.GeoMaxStep)
 		hash := Base32encoding.Encode(value.Bits)
 		res = append(res, hash)
 	}

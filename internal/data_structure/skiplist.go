@@ -37,6 +37,25 @@ type Skiplist struct {
 	level  int
 }
 
+type ZRange struct {
+	min, max     float64
+	minex, maxex bool /* are min or max exclusive? */
+}
+
+func (zr ZRange) ValueGteMin(value float64) bool {
+	if zr.minex {
+		return value > zr.min
+	}
+	return value >= zr.min
+}
+
+func (zr ZRange) ValueLteMax(value float64) bool {
+	if zr.maxex {
+		return value < zr.max
+	}
+	return value <= zr.max
+}
+
 func (sl *Skiplist) randomLevel() int {
 	level := 1
 	for rand.Intn(2) == 1 {
@@ -237,4 +256,19 @@ func (sl *Skiplist) GetRank(score float64, ele string) uint32 {
 func (sl *Skiplist) FindFirstInRange(min float64, max float64) *SkiplistNode {
 	// TODO: implement detail
 	return nil
+}
+
+func (sl *Skiplist) InRange(zr ZRange) bool {
+	if zr.min > zr.max || (zr.min == zr.max && (zr.minex || zr.maxex)) {
+		return false
+	}
+	x := sl.tail
+	if x == nil || !zr.ValueGteMin(x.score) {
+		return false
+	}
+	x = sl.head.levels[0].forward
+	if x == nil || !zr.ValueLteMax(x.score) {
+		return false
+	}
+	return true
 }

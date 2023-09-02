@@ -100,3 +100,111 @@ func TestSkiplist_Delete(t *testing.T) {
 		assert.Nil(t, sl.head.levels[i].forward)
 	}
 }
+
+func TestZRange_ValueGteMin(t *testing.T) {
+	zr := ZRange{
+		min:   10,
+		max:   20,
+		minex: false,
+		maxex: false,
+	}
+	// [10, 20]
+	assert.True(t, zr.ValueGteMin(10))
+	assert.False(t, zr.ValueGteMin(9.99))
+
+	zr = ZRange{
+		min:   10,
+		max:   20,
+		minex: true,
+		maxex: false,
+	}
+	// (10, 20]
+	assert.False(t, zr.ValueGteMin(10))
+	assert.True(t, zr.ValueGteMin(10.1))
+}
+
+func TestZRange_ValueLteMax(t *testing.T) {
+	zr := ZRange{
+		min:   10,
+		max:   20,
+		minex: false,
+		maxex: false,
+	}
+	// [10, 20]
+	assert.True(t, zr.ValueLteMax(20))
+	assert.False(t, zr.ValueLteMax(20.1))
+
+	zr = ZRange{
+		min:   10,
+		max:   20,
+		minex: false,
+		maxex: true,
+	}
+	// [10, 20)
+	assert.False(t, zr.ValueLteMax(20))
+	assert.True(t, zr.ValueLteMax(19.99))
+}
+
+func TestSkiplist_InRange(t *testing.T) {
+	sl := CreateSkiplist()
+	sl.Insert(10, "k1")
+	sl.Insert(20, "k2")
+	sl.Insert(30, "k3")
+	sl.Insert(40, "k4")
+	// 10->20->30->40
+	zr := ZRange{
+		min:   5,
+		max:   15,
+		minex: false,
+		maxex: false,
+	}
+	// [5, 15]
+	assert.True(t, sl.InRange(zr))
+	zr.min = 5
+	zr.max = 10
+	// [5, 10]
+	assert.True(t, sl.InRange(zr))
+	zr.maxex = true
+	// [5, 10)
+	assert.False(t, sl.InRange(zr))
+	zr.min = 40
+	zr.max = 41
+	zr.minex = false
+	zr.maxex = false
+	// [40, 41]
+	assert.True(t, sl.InRange(zr))
+	zr.minex = true
+	// (40, 41]
+	assert.False(t, sl.InRange(zr))
+	zr = ZRange{
+		min:   5,
+		max:   50,
+		minex: false,
+		maxex: false,
+	}
+	// [5, 50]
+	assert.True(t, sl.InRange(zr))
+	zr = ZRange{
+		min:   30,
+		max:   20,
+		minex: false,
+		maxex: false,
+	}
+	assert.False(t, sl.InRange(zr))
+
+	zr = ZRange{
+		min:   20,
+		max:   20,
+		minex: true,
+		maxex: false,
+	}
+	assert.False(t, sl.InRange(zr))
+
+	zr = ZRange{
+		min:   20,
+		max:   20,
+		minex: false,
+		maxex: true,
+	}
+	assert.False(t, sl.InRange(zr))
+}

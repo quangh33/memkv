@@ -253,9 +253,25 @@ func (sl *Skiplist) GetRank(score float64, ele string) uint32 {
 	return 0
 }
 
-func (sl *Skiplist) FindFirstInRange(min float64, max float64) *SkiplistNode {
-	// TODO: implement detail
-	return nil
+/*
+Find the first node that is contained in the range
+Return nil if not found
+*/
+func (sl *Skiplist) FindFirstInRange(zr ZRange) *SkiplistNode {
+	if !sl.InRange(zr) {
+		return nil
+	}
+	x := sl.head
+	for i := sl.level - 1; i >= 0; i-- {
+		for x.levels[i].forward != nil && !zr.ValueGteMin(x.levels[i].forward.score) {
+			x = x.levels[i].forward
+		}
+	}
+	x = x.levels[0].forward
+	if !zr.ValueLteMax(x.score) {
+		return nil
+	}
+	return x
 }
 
 func (sl *Skiplist) InRange(zr ZRange) bool {

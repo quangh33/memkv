@@ -208,3 +208,53 @@ func TestSkiplist_InRange(t *testing.T) {
 	}
 	assert.False(t, sl.InRange(zr))
 }
+
+func TestSkiplist_FindFirstInRange(t *testing.T) {
+	sl := CreateSkiplist()
+	sl.Insert(10, "k1")
+	sl.Insert(20, "k2")
+	sl.Insert(30, "k3")
+	sl.Insert(40, "k4")
+	sl.Insert(50, "k4")
+
+	zr := ZRange{
+		min:   1,
+		max:   9,
+		minex: false,
+		maxex: false,
+	}
+	// [1, 9]
+	assert.Nil(t, sl.FindFirstInRange(zr))
+	zr = ZRange{
+		min:   1,
+		max:   15,
+		minex: false,
+		maxex: false,
+	}
+	// [1, 15]
+	assert.Equal(t, sl.head.levels[0].forward, sl.FindFirstInRange(zr))
+	zr = ZRange{
+		min:   40,
+		max:   100,
+		minex: false,
+		maxex: false,
+	}
+	// [40, 100]
+	assert.EqualValues(t, 40, sl.FindFirstInRange(zr).score)
+	zr = ZRange{
+		min:   40,
+		max:   100,
+		minex: true,
+		maxex: false,
+	}
+	// (40, 100]
+	assert.EqualValues(t, 50, sl.FindFirstInRange(zr).score)
+	zr = ZRange{
+		min:   50,
+		max:   100,
+		minex: true,
+		maxex: false,
+	}
+	// (50, 100]
+	assert.Nil(t, sl.FindFirstInRange(zr))
+}

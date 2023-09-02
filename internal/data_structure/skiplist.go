@@ -49,14 +49,14 @@ func (sl *Skiplist) randomLevel() int {
 }
 
 /*
-               /level 31: span=0 | forward\ ----> NULL
-               |....                      |
-		       |level 2: span=0 | forward | ----> NULL
-               |level 1: span=0 | forward | ----> NULL
-		       |ele                       |
-		       |score                     |
-	 NULL <--- |backward                  |
-               \head                      /
+	/level 31: span=0 | forward\ ----> NULL
+	|....                      |
+	|level 2: span=0 | forward | ----> NULL
+	|level 1: span=0 | forward | ----> NULL
+	|ele                       |
+	|score                     |
+	|backward                  |
+	\head                      /
 */
 
 func (sl *Skiplist) CreateNode(level int, score float64, ele string) *SkiplistNode {

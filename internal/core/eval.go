@@ -378,7 +378,6 @@ func evalGEOHASH(args []string) []byte {
 		hash := Base32encoding.Encode(value.Bits)
 		res = append(res, hash)
 	}
-	fmt.Println(res)
 	return Encode(res, false)
 }
 

@@ -56,7 +56,7 @@ func TestGeohashDecode(t *testing.T) {
 			Bits: core.Base32encoding.Decode(hash) << 2,
 			// need to shift-left 2 because base32 decode returns a 50bits value
 		}
-		long, lat := data_structure.GeohashDecode(normalGeoRange, geohashBits)
+		long, lat := data_structure.GeohashDecodeAreaToLongLat(normalGeoRange, geohashBits)
 		assert.LessOrEqual(t, data_structure.GeohashGetDistance(long, lat, expected[0], expected[1]), 1.0)
 	}
 }
@@ -116,4 +116,98 @@ func TestGeohashGetDistance(t *testing.T) {
 		output := data_structure.GeohashGetDistance(points[0], points[1], points[2], points[3])
 		assert.LessOrEqual(t, math.Abs(output-dis), 1e-5)
 	}
+}
+
+func TestGeohashMoveX(t *testing.T) {
+	hash := data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1001,
+	}
+	res := data_structure.GeohashMoveX(hash, 1)
+	assert.EqualValues(t, 0b1001, hash.Bits)
+	assert.EqualValues(t, 0b1011, res.Bits)
+	res = data_structure.GeohashMoveX(hash, -1)
+	assert.EqualValues(t, 0b11, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 3,
+		Bits: 0b101010,
+	}
+	res = data_structure.GeohashMoveX(hash, -1)
+	assert.EqualValues(t, 0b101000, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 3,
+		Bits: 0b101010,
+	}
+	res = data_structure.GeohashMoveX(hash, 1)
+	assert.EqualValues(t, 0b0, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 3,
+		Bits: 0b101111,
+	}
+	res = data_structure.GeohashMoveX(hash, 1)
+	assert.EqualValues(t, 0b101, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1011,
+	}
+	res = data_structure.GeohashMoveX(hash, -1)
+	assert.EqualValues(t, 0b1001, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1011,
+	}
+	res = data_structure.GeohashMoveX(hash, 1)
+	assert.EqualValues(t, 0b1, res.Bits)
+}
+
+func TestGeohashMoveY(t *testing.T) {
+	hash := data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1001,
+	}
+	res := data_structure.GeohashMoveY(hash, 1)
+	assert.EqualValues(t, 0b1001, hash.Bits)
+	assert.EqualValues(t, 0b1100, res.Bits)
+	res = data_structure.GeohashMoveY(hash, -1)
+	assert.EqualValues(t, 0b1000, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 3,
+		Bits: 0b101010,
+	}
+	res = data_structure.GeohashMoveY(hash, -1)
+	assert.EqualValues(t, 0b111111, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 3,
+		Bits: 0b101010,
+	}
+	res = data_structure.GeohashMoveY(hash, 1)
+	assert.EqualValues(t, 0b101011, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 3,
+		Bits: 0b101111,
+	}
+	res = data_structure.GeohashMoveY(hash, 1)
+	assert.EqualValues(t, 0b111010, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1011,
+	}
+	res = data_structure.GeohashMoveY(hash, -1)
+	assert.EqualValues(t, 0b1010, res.Bits)
+
+	hash = data_structure.GeohashBits{
+		Step: 2,
+		Bits: 0b1011,
+	}
+	res = data_structure.GeohashMoveY(hash, 1)
+	assert.EqualValues(t, 0b1110, res.Bits)
 }

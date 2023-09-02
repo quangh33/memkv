@@ -13,6 +13,7 @@ const GeoLongMin float64 = -180
 const GeoLongMax float64 = 180
 const DR float64 = math.Pi / 180.0
 const EarthRadiusInMeters float64 = 6372797.560856
+const MercatorMax float64 = 20037726.37
 
 // 52-bits gives us accuracy down to 0.6m
 const GeoMaxStep uint8 = 26
@@ -27,6 +28,40 @@ type GeohashRange struct {
 	MaxLat  float64
 	MinLong float64
 	MaxLong float64
+}
+
+type GeohashNeighbors struct {
+	north     GeohashBits
+	east      GeohashBits
+	west      GeohashBits
+	south     GeohashBits
+	northEast GeohashBits
+	southEast GeohashBits
+	northWest GeohashBits
+	southWest GeohashBits
+}
+
+type GeohashArea struct {
+	hash   GeohashBits
+	grange GeohashRange
+}
+
+/*
+________________
+|    |    |    |
+|    |    |    |
+----------------
+|    |    |    |
+|    |    |    |
+----------------
+|    |    |    |
+|    |    |    |
+----------------
+*/
+type GeohashRadius struct {
+	hash      GeohashBits
+	area      GeohashArea
+	neighbors GeohashNeighbors
 }
 
 var GeohashCoordRange = GeohashRange{
@@ -65,20 +100,29 @@ func GeohashEncode(geohashRange GeohashRange, long float64, lat float64, step ui
 	return res, nil
 }
 
-func GeohashDecode(geohashRange GeohashRange, hash GeohashBits) (long float64, lat float64) {
+func GeohashDecode(geohashRange GeohashRange, hash GeohashBits) GeohashArea {
 	var step = hash.Step
 	latBits, longBits := Deinterleave(hash.Bits)
 	latScale := geohashRange.MaxLat - geohashRange.MinLat
 	longScale := geohashRange.MaxLong - geohashRange.MinLong
 	exp2Step := 1 << step
-	latMin := geohashRange.MinLat + (float64(latBits)/float64(exp2Step))*latScale
-	latMax := geohashRange.MinLat + (float64(latBits+1)/float64(exp2Step))*latScale
-	longMin := geohashRange.MinLong + (float64(longBits)/float64(exp2Step))*longScale
-	longMax := geohashRange.MinLong + (float64(longBits+1)/float64(exp2Step))*longScale
+	res := GeohashArea{
+		hash: hash,
+		grange: GeohashRange{
+			MinLat:  geohashRange.MinLat + (float64(latBits)/float64(exp2Step))*latScale,
+			MaxLat:  geohashRange.MinLat + (float64(latBits+1)/float64(exp2Step))*latScale,
+			MinLong: geohashRange.MinLong + (float64(longBits)/float64(exp2Step))*longScale,
+			MaxLong: geohashRange.MinLong + (float64(longBits+1)/float64(exp2Step))*longScale,
+		},
+	}
+	return res
+}
 
+func GeohashDecodeAreaToLongLat(geohashRange GeohashRange, hash GeohashBits) (long float64, lat float64) {
+	area := GeohashDecode(geohashRange, hash)
 	// result is the center of the rectangle
-	lat = (latMin + latMax) / 2
-	long = (longMin + longMax) / 2
+	lat = (area.grange.MinLat + area.grange.MaxLat) / 2
+	long = (area.grange.MinLong + area.grange.MaxLong) / 2
 	if lat > GeoLatMax {
 		lat = GeoLongMax
 	}
@@ -157,4 +201,46 @@ func GeohashGetScoreLimit(hash GeohashBits) (min GeoHashFix52Bits, max GeoHashFi
 	hash.Bits++
 	max = GeohashAlign52Bits(hash)
 	return
+}
+
+/* Move left/right 1 step */
+func GeohashMoveX(hash GeohashBits, d int8) GeohashBits {
+	if d == 0 {
+		return hash
+	}
+
+	x := hash.Bits & 0xaaaaaaaaaaaaaaaa
+	y := hash.Bits & 0x5555555555555555
+	var zz uint64 = 0x5555555555555555 >> (64 - hash.Step*2)
+
+	if d > 0 {
+		x = x + (zz + 1)
+	} else {
+		x = x | zz
+		x = x - (zz + 1)
+	}
+	x &= 0xaaaaaaaaaaaaaaaa >> (64 - hash.Step*2)
+	hash.Bits = x | y
+	return hash
+}
+
+/* Move up/down 1 step */
+func GeohashMoveY(hash GeohashBits, d int8) GeohashBits {
+	if d == 0 {
+		return hash
+	}
+
+	x := hash.Bits & 0xaaaaaaaaaaaaaaaa
+	y := hash.Bits & 0x5555555555555555
+	var zz uint64 = 0xaaaaaaaaaaaaaaaa >> (64 - hash.Step*2)
+
+	if d > 0 {
+		y = y + (zz + 1)
+	} else {
+		y = y | zz
+		y = y - (zz + 1)
+	}
+	y &= 0x5555555555555555 >> (64 - hash.Step*2)
+	hash.Bits = x | y
+	return hash
 }

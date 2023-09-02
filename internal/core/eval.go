@@ -333,12 +333,12 @@ func evalGEODIST(args []string) []byte {
 		Step: data_structure.GeoMaxStep,
 		Bits: uint64(score1),
 	}
-	lon1, lat1 := data_structure.GeohashDecode(data_structure.GeohashCoordRange, score1GeohashBit)
+	lon1, lat1 := data_structure.GeohashDecodeAreaToLongLat(data_structure.GeohashCoordRange, score1GeohashBit)
 	score2GeohashBit := data_structure.GeohashBits{
 		Step: data_structure.GeoMaxStep,
 		Bits: uint64(score2),
 	}
-	lon2, lat2 := data_structure.GeohashDecode(data_structure.GeohashCoordRange, score2GeohashBit)
+	lon2, lat2 := data_structure.GeohashDecodeAreaToLongLat(data_structure.GeohashCoordRange, score2GeohashBit)
 	dist := data_structure.GeohashGetDistance(lon1, lat1, lon2, lat2) / unit
 	return Encode(fmt.Sprintf("%f", dist), false)
 }
@@ -367,7 +367,7 @@ func evalGEOHASH(args []string) []byte {
 			Step: data_structure.GeoMaxStep,
 			Bits: uint64(score),
 		}
-		lon, lat := data_structure.GeohashDecode(data_structure.GeohashCoordRange, scoreGeohashBit)
+		lon, lat := data_structure.GeohashDecodeAreaToLongLat(data_structure.GeohashCoordRange, scoreGeohashBit)
 		/* The internal format we use for geocoding is a bit different
 		 * than the standard, since we use as initial latitude range
 		 * -85,85, while the normal geohashing algorithm uses -90,90.

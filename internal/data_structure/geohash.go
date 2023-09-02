@@ -23,6 +23,12 @@ type GeohashBits struct {
 	Bits uint64
 }
 
+type GeohashCircularSearchQuery struct {
+	long        float64
+	lat         float64
+	radiusMeter float64
+}
+
 type GeohashRange struct {
 	MinLat  float64
 	MaxLat  float64
@@ -62,6 +68,14 @@ type GeohashRadius struct {
 	hash      GeohashBits
 	area      GeohashArea
 	neighbors GeohashNeighbors
+}
+
+type GeoPoint struct {
+	long   float64
+	lat    float64
+	dist   float64 // distance to searching point
+	member string
+	score  float64
 }
 
 var GeohashCoordRange = GeohashRange{
@@ -272,5 +286,86 @@ func (hash GeohashBits) GetNeighbors() GeohashNeighbors {
 	GeohashMoveX(&ret.SouthWest, -1)
 	GeohashMoveY(&ret.SouthWest, -1)
 
+	return ret
+}
+
+/*
+Calculate a set of areas (center + 8 neighbors) that are able to cover a range query
+*/
+func GeohashCalculateSearchingAreas(q GeohashCircularSearchQuery) (*GeohashRadius, error) {
+	steps := GeohashEstimateStepsByRadius(q.radiusMeter)
+	centerHash, err := GeohashEncode(GeohashCoordRange, q.long, q.lat, steps)
+	if err != nil {
+		return nil, err
+	}
+	neighbors := centerHash.GetNeighbors()
+	areas := GeohashDecode(GeohashCoordRange, *centerHash)
+	ret := GeohashRadius{
+		hash:      *centerHash,
+		area:      areas,
+		neighbors: neighbors,
+	}
+	return &ret, nil
+}
+
+/*
+Search all points inside area covered by 'hash' that is within searching distance to (lon, lat) point
+*/
+func GeohashGetMemberInsideBox(zset ZSet, q GeohashCircularSearchQuery, hash GeohashBits) []GeoPoint {
+	mi, ma := GeohashGetScoreLimit(hash)
+	// [min, max)
+	zrange := ZRange{
+		min:   float64(mi),
+		max:   float64(ma),
+		minex: false,
+		maxex: true,
+	}
+	x := zset.zskiplist.FindFirstInRange(zrange)
+	if x == nil {
+		return []GeoPoint{}
+	}
+	var ret []GeoPoint
+	for x != nil {
+		if !zrange.ValueLteMax(x.score) {
+			break
+		}
+		score := x.score
+		long, lat := GeohashDecodeAreaToLongLat(GeohashCoordRange, GeohashBits{
+			Step: GeoMaxStep,
+			Bits: uint64(score),
+		})
+		dist := GeohashGetDistance(long, lat, q.long, q.lat)
+		if dist <= q.radiusMeter {
+			ret = append(ret, GeoPoint{
+				long:   long,
+				lat:    lat,
+				dist:   dist,
+				member: x.ele,
+				score:  x.score,
+			})
+		}
+		x = x.levels[0].forward
+	}
+
+	return ret
+}
+
+func GeohashGetMemberOfAllNeighbors(zset ZSet, q GeohashCircularSearchQuery, n *GeohashRadius) []GeoPoint {
+	neighbors := [9]GeohashBits{}
+	neighbors[0] = n.hash
+	neighbors[1] = n.neighbors.North
+	neighbors[2] = n.neighbors.South
+	neighbors[3] = n.neighbors.East
+	neighbors[4] = n.neighbors.West
+	neighbors[5] = n.neighbors.NorthEast
+	neighbors[6] = n.neighbors.NorthWest
+	neighbors[7] = n.neighbors.NorthEast
+	neighbors[8] = n.neighbors.SouthWest
+
+	var ret []GeoPoint
+	for i := 0; i < len(neighbors); i++ {
+		ga := GeohashGetMemberInsideBox(zset, q, neighbors[i])
+		ret = append(ret, ga...)
+	}
 	return ret
 }

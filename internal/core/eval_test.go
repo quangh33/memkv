@@ -8,6 +8,7 @@ import (
 )
 
 func TestEvalGEOADD(t *testing.T) {
+	delete(zsetStore, "vn")
 	res, err := Decode(evalGEOADD([]string{"vn", "10", "20", "p1"}))
 	assert.Nil(t, err)
 	assert.EqualValues(t, res, 1)
@@ -35,6 +36,7 @@ func TestEvalGEOADD(t *testing.T) {
 }
 
 func TestEvalGEODIST(t *testing.T) {
+	delete(zsetStore, "vn")
 	evalGEOADD([]string{"vn", "20", "10", "p1"})
 	evalGEOADD([]string{"vn", "40", "30", "p2"})
 	evalGEOADD([]string{"vn", "10", "85", "p3"})
@@ -67,6 +69,7 @@ func TestEvalGEODIST(t *testing.T) {
 }
 
 func TestEvalGeoHash(t *testing.T) {
+	delete(zsetStore, "vn")
 	evalGEOADD([]string{"vn", "13.361389", "38.115556", "p1"})
 	evalGEOADD([]string{"vn", "15.087269", "37.502669", "p2"})
 	evalGEOADD([]string{"vn", "100", "80", "p3"})

@@ -1,11 +1,112 @@
 package core
 
 import (
-	"github.com/stretchr/testify/assert"
 	"math"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"memkv/internal/data_structure"
 )
+
+func resetSetStore() {
+	setStore = make(map[string]data_structure.Set)
+}
+
+func TestEvalSADD(t *testing.T) {
+	resetSetStore()
+	res, err := Decode(evalSADD([]string{"set", "adele"}))
+	assert.Nil(t, err)
+	assert.EqualValues(t, 1, res)
+
+	res, err = Decode(evalSADD([]string{"set", "adele", "bob", "chris"}))
+	assert.Nil(t, err)
+	assert.EqualValues(t, 2, res)
+}
+
+func TestEvalSREM(t *testing.T) {
+	resetSetStore()
+	res, err := Decode(evalSREM([]string{"set", "adele"}))
+	assert.Nil(t, err)
+	assert.EqualValues(t, 0, res)
+
+	evalSADD([]string{"set", "a", "b", "c"})
+	res, err = Decode(evalSREM([]string{"set", "a", "d"}))
+	assert.Nil(t, err)
+	assert.EqualValues(t, 1, res)
+}
+
+func TestEvalSCARD(t *testing.T) {
+	resetSetStore()
+
+	evalSADD([]string{"set", "a", "b", "c"})
+	res, err := Decode(evalSCARD([]string{"set"}))
+	assert.Nil(t, err)
+	assert.EqualValues(t, 3, res)
+}
+
+func TestEvalSMEMBERS(t *testing.T) {
+	resetSetStore()
+
+	evalSADD([]string{"set", "a", "b", "c"})
+	res, err := Decode(evalSMEMBERS([]string{"set"}))
+	assert.Nil(t, err)
+	assert.ElementsMatch(t, []string{"a", "b", "c"}, res)
+}
+
+func TestEvalSMISMEMBER(t *testing.T) {
+	resetSetStore()
+
+	evalSADD([]string{"set", "a", "b", "c"})
+	res, err := Decode(evalSMISMEMBER([]string{"set", "a", "d"}))
+	assert.Nil(t, err)
+	assert.ElementsMatch(t, []int{1, 0}, res)
+}
+
+func TestEvalSRAND(t *testing.T) {
+	resetSetStore()
+
+	evalSADD([]string{"set", "a", "b", "c"})
+	res, err := Decode(evalSRAND([]string{"set", "2"}))
+
+	assert.Nil(t, err)
+	m := make(map[string]struct{})
+	m["a"] = struct{}{}
+	m["b"] = struct{}{}
+	m["c"] = struct{}{}
+	rd := make(map[string]struct{})
+	for _, key := range res.([]interface{}) {
+		k := key.(string)
+		assert.Contains(t, m, k, "key must be in set")
+		assert.NotContains(t, m, rd, "key must be not duplicated")
+		rd[k] = struct{}{}
+	}
+}
+
+func TestEvalSPOP(t *testing.T) {
+	resetSetStore()
+
+	evalSADD([]string{"set", "a", "b", "c"})
+	res, err := Decode(evalSPOP([]string{"set", "2"}))
+
+	assert.Nil(t, err)
+	m := make(map[string]struct{})
+	m["a"] = struct{}{}
+	m["b"] = struct{}{}
+	m["c"] = struct{}{}
+	for _, key := range res.([]interface{}) {
+		k := key.(string)
+		delete(m, k)
+	}
+	var expected []string
+	for k := range m {
+		expected = append(expected, k)
+	}
+
+	res, err = Decode(evalSMEMBERS([]string{"set"}))
+	assert.ElementsMatch(t, expected, res)
+}
 
 func TestEvalGEOADD(t *testing.T) {
 	delete(zsetStore, "vn")

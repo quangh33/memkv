@@ -1,9 +1,10 @@
 package core
 
 import (
+	"time"
+
 	"memkv/internal/config"
 	"memkv/internal/data_structure"
-	"time"
 )
 
 type Obj struct {
@@ -20,10 +21,13 @@ var keyValueExpireStore map[*Obj]uint64
 
 var zsetStore map[string]*data_structure.ZSet
 
+var setStore map[string]data_structure.Set
+
 func init() {
 	keyValueStore = make(map[string]*Obj)
 	keyValueExpireStore = make(map[*Obj]uint64)
 	zsetStore = make(map[string]*data_structure.ZSet)
+	setStore = make(map[string]data_structure.Set)
 }
 
 func NewObj(value interface{}, ttlMs int64, oType uint8, oEnc uint8) *Obj {
@@ -50,6 +54,20 @@ func Get(k string) *Obj {
 		}
 	}
 	return v
+}
+
+func GetAndAssert(k string, t uint8) (*Obj, error) {
+	v := keyValueStore[k]
+	if v != nil {
+		if hasExpired(v) {
+			Del(k)
+			return nil, nil
+		}
+	}
+	if err := assertType(v.TypeEncoding, t); err != nil {
+		return nil, err
+	}
+	return v, nil
 }
 
 func Put(k string, obj *Obj) {

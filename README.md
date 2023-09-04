@@ -16,20 +16,10 @@
 - Simple eviction mechanism
 - Commands:
   - PING
-  - SET
-  - GET
-  - TTL
-  - DEL
-  - EXPIRE
-  - INCR
-  - ZADD
-  - ZRANK
-  - ZREM
-  - ZSCORE
-  - ZCARD
-  - GEOADD
-  - GEODIST
-  - GEOHASH
+  - SET, GET, DEL, TTL, EXPIRE, INCR
+  - ZADD, ZRANK, ZREM, ZSCORE, ZCARD
+  - SADD, SREM, SCARD, SMEMEBERS, SISMEMBER, SRAND, SPOP
+  - GEOADD, GEODIST, GEOHASH
 ## WIP
 - Geohash commands: 
   - [x] GEOADD

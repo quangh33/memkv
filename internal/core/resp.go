@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"memkv/internal/constant"
 	"strings"
+
+	"memkv/internal/constant"
 )
 
 const CRLF string = "\r\n"
@@ -63,6 +64,22 @@ func readArray(data []byte) (interface{}, int, error) {
 	return res, pos, nil
 }
 
+// @1|2|3 -> {1, 2, 3}
+func readIntArray(data []byte) (interface{}, int, error) {
+	var res []int
+	pos := 1
+	cur := 0
+	for pos = 1; pos < len(data); pos++ {
+		if data[pos] == '|' {
+			res = append(res, cur)
+			cur = 0
+			continue
+		}
+		cur = cur*10 + int(data[pos]-'0')
+	}
+	return res, pos, nil
+}
+
 func DecodeOne(data []byte) (interface{}, int, error) {
 	if len(data) == 0 {
 		return nil, 0, errors.New("no data")
@@ -78,6 +95,8 @@ func DecodeOne(data []byte) (interface{}, int, error) {
 		return readBulkString(data)
 	case '*':
 		return readArray(data)
+	case '@':
+		return readIntArray(data)
 	}
 	return nil, 0, nil
 }
@@ -109,6 +128,13 @@ func Encode(value interface{}, isSimpleString bool) []byte {
 			buf.Write(encodeString(b))
 		}
 		return []byte(fmt.Sprintf("*%d\r\n%s", len(v), buf.Bytes()))
+	case []int:
+		var b []byte
+		buf := bytes.NewBuffer(b)
+		for _, n := range value.([]int) {
+			buf.Write([]byte(fmt.Sprintf("%d|", n)))
+		}
+		return []byte(fmt.Sprintf("@%s", buf.Bytes()))
 	default:
 		return constant.RespNil
 	}

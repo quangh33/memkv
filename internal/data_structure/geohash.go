@@ -24,9 +24,9 @@ type GeohashBits struct {
 }
 
 type GeohashCircularSearchQuery struct {
-	long        float64
-	lat         float64
-	radiusMeter float64
+	Long        float64
+	Lat         float64
+	RadiusMeter float64
 }
 
 type GeohashRange struct {
@@ -71,11 +71,11 @@ type GeohashRadius struct {
 }
 
 type GeoPoint struct {
-	long   float64
-	lat    float64
-	dist   float64 // distance to searching point
-	member string
-	score  float64
+	Long   float64
+	Lat    float64
+	Dist   float64 // distance to searching point
+	Member string
+	Score  float64
 }
 
 var GeohashCoordRange = GeohashRange{
@@ -105,12 +105,11 @@ func GeohashEncode(geohashRange GeohashRange, long float64, lat float64, step ui
 
 	latOffset := (lat - geohashRange.MinLat) / (geohashRange.MaxLat - geohashRange.MinLat)
 	longOffset := (long - geohashRange.MinLong) / (geohashRange.MaxLong - geohashRange.MinLong)
-	exp2Step := float64(1 << GeoMaxStep)
-	latOffset *= exp2Step
-	longOffset *= exp2Step
+	exp2Step := 1 << step
+	latOffset *= float64(exp2Step)
+	longOffset *= float64(exp2Step)
 	// lat is at even position, long is at odd position
 	res.Bits = Interleave(uint32(latOffset), uint32(longOffset))
-	res.Bits = uint64(GeohashAlign52Bits(*res))
 	return res, nil
 }
 
@@ -210,7 +209,7 @@ func Deinterleave(x uint64) (uint32, uint32) {
 Compute sorted set score [min, max) we should query to get all the elements inside
 the specific are 'hash'.
 */
-func GeohashGetScoreLimit(hash GeohashBits) (min GeoHashFix52Bits, max GeoHashFix52Bits) {
+func GeohashGetScoreLimit(hash GeohashBits) (min uint64, max uint64) {
 	min = GeohashAlign52Bits(hash)
 	hash.Bits++
 	max = GeohashAlign52Bits(hash)
@@ -293,8 +292,8 @@ func (hash GeohashBits) GetNeighbors() GeohashNeighbors {
 Calculate a set of areas (center + 8 neighbors) that are able to cover a range query
 */
 func GeohashCalculateSearchingAreas(q GeohashCircularSearchQuery) (*GeohashRadius, error) {
-	steps := GeohashEstimateStepsByRadius(q.radiusMeter)
-	centerHash, err := GeohashEncode(GeohashCoordRange, q.long, q.lat, steps)
+	steps := GeohashEstimateStepsByRadius(q.RadiusMeter)
+	centerHash, err := GeohashEncode(GeohashCoordRange, q.Long, q.Lat, steps)
 	if err != nil {
 		return nil, err
 	}
@@ -334,14 +333,14 @@ func GeohashGetMemberInsideBox(zset ZSet, q GeohashCircularSearchQuery, hash Geo
 			Step: GeoMaxStep,
 			Bits: uint64(score),
 		})
-		dist := GeohashGetDistance(long, lat, q.long, q.lat)
-		if dist <= q.radiusMeter {
+		dist := GeohashGetDistance(long, lat, q.Long, q.Lat)
+		if dist <= q.RadiusMeter {
 			ret = append(ret, GeoPoint{
-				long:   long,
-				lat:    lat,
-				dist:   dist,
-				member: x.ele,
-				score:  x.score,
+				Long:   long,
+				Lat:    lat,
+				Dist:   dist,
+				Member: x.ele,
+				Score:  x.score,
 			})
 		}
 		x = x.levels[0].forward

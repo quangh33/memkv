@@ -186,3 +186,17 @@ func TestEvalGeoHash(t *testing.T) {
 	expected = []string{}
 	assert.ElementsMatch(t, expected, ret)
 }
+
+func TestEvalGEOSEARCH(t *testing.T) {
+	delete(zsetStore, "nyc")
+	evalGEOADD([]string{"nyc", "-73.9733487", "40.7648057", "central park"})
+	evalGEOADD([]string{"nyc", "-73.9903085", "40.7362513", "union square"})
+	evalGEOADD([]string{"nyc", "-74.0131604", "40.7126674", "wtc one"})
+	evalGEOADD([]string{"nyc", "-73.7858139", "40.6428986", "jfk"})
+	evalGEOADD([]string{"nyc", "-73.9375699", "40.7498929", "q4"})
+	evalGEOADD([]string{"nyc", "-73.9564142", "40.7480973", "4545"})
+
+	ret, err := Decode(evalGEOSEARCH([]string{"nyc", "FROMLONLAT", "-73.9798091", "40.7598464", "3000"}))
+	assert.Nil(t, err)
+	assert.ElementsMatch(t, []string{"central park", "4545", "union square"}, ret)
+}

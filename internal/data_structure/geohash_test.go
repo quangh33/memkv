@@ -25,6 +25,7 @@ func TestGeohashEncode(t *testing.T) {
 
 	for k, v := range cases {
 		value, _ := data_structure.GeohashEncode(data_structure.GeohashStandardRange, k[0], k[1], data_structure.GeoMaxStep)
+		value.Bits = data_structure.GeohashAlign52Bits(*value)
 		output := core.Base32encoding.Encode(value.Bits)
 		assert.EqualValues(t, v, output)
 	}

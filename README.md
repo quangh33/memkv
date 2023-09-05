@@ -20,6 +20,10 @@
   - ZADD, ZRANK, ZREM, ZSCORE, ZCARD
   - SADD, SREM, SCARD, SMEMEBERS, SISMEMBER, SRAND, SPOP
   - GEOADD, GEODIST, GEOHASH, GEOSEARCH
+- Data structures:
+  - Skiplist
+  - Hashtable
+  - Geohash
 ## WIP
 - Geohash commands: 
   - [x] GEOADD

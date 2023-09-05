@@ -25,7 +25,7 @@
   - Hashtable
   - Geohash
 ## WIP
-- Geohash commands: 
+- Geo commands: 
   - [x] GEOADD
   - [x] GEODIST
   - [x] GEOHASH

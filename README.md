@@ -19,13 +19,13 @@
   - SET, GET, DEL, TTL, EXPIRE, INCR
   - ZADD, ZRANK, ZREM, ZSCORE, ZCARD
   - SADD, SREM, SCARD, SMEMEBERS, SISMEMBER, SRAND, SPOP
-  - GEOADD, GEODIST, GEOHASH
+  - GEOADD, GEODIST, GEOHASH, GEOSEARCH
 ## WIP
 - Geohash commands: 
   - [x] GEOADD
   - [x] GEODIST
   - [x] GEOHASH
-  - [ ] GEOSEARCH
+  - [x] GEOSEARCH
 ## Todo
 - Bloom filter commands
 - Hyperloglog

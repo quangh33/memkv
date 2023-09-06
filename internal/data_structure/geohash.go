@@ -358,13 +358,21 @@ func GeohashGetMemberOfAllNeighbors(zset ZSet, q GeohashCircularSearchQuery, n *
 	neighbors[4] = n.neighbors.West
 	neighbors[5] = n.neighbors.NorthEast
 	neighbors[6] = n.neighbors.NorthWest
-	neighbors[7] = n.neighbors.NorthEast
+	neighbors[7] = n.neighbors.SouthEast
 	neighbors[8] = n.neighbors.SouthWest
 
 	var ret []GeoPoint
+	lastProcessedIndex := 0
 	for i := 0; i < len(neighbors); i++ {
+		// When a big radius is used, adjacent neighbors can be duplicated
+		if lastProcessedIndex != 0 &&
+			neighbors[i].Bits == neighbors[lastProcessedIndex].Bits &&
+			neighbors[i].Step == neighbors[lastProcessedIndex].Step {
+			continue
+		}
 		ga := GeohashGetMemberInsideBox(zset, q, neighbors[i])
 		ret = append(ret, ga...)
+		lastProcessedIndex = 0
 	}
 	return ret
 }

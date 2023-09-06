@@ -1,7 +1,9 @@
 package core
 
 import (
+	"fmt"
 	"math"
+	"math/rand"
 	"strconv"
 	"testing"
 
@@ -187,7 +189,7 @@ func TestEvalGeoHash(t *testing.T) {
 	assert.ElementsMatch(t, expected, ret)
 }
 
-func TestEvalGEOSEARCH(t *testing.T) {
+func TestSimpleEvalGEOSEARCH(t *testing.T) {
 	delete(zsetStore, "nyc")
 	evalGEOADD([]string{"nyc", "-73.9733487", "40.7648057", "central park"})
 	evalGEOADD([]string{"nyc", "-73.9903085", "40.7362513", "union square"})
@@ -199,4 +201,44 @@ func TestEvalGEOSEARCH(t *testing.T) {
 	ret, err := Decode(evalGEOSEARCH([]string{"nyc", "FROMLONLAT", "-73.9798091", "40.7598464", "3000"}))
 	assert.Nil(t, err)
 	assert.ElementsMatch(t, []string{"central park", "4545", "union square"}, ret)
+
+	evalGEOADD([]string{"nyc", "-73.9798091", "40.7598464", "me"})
+	ret, err = Decode(evalGEOSEARCH([]string{"nyc", "FROMMEMBER", "me", "3000"}))
+	assert.Nil(t, err)
+	assert.ElementsMatch(t, []string{"me", "central park", "4545", "union square"}, ret)
+}
+
+func randFloat(min, max float64) float64 {
+	return min + rand.Float64()*(max-min)
+}
+
+func TestRandomEvalGEOSEARCH(t *testing.T) {
+	delete(zsetStore, "nyc")
+	targetLon := -73.9798091
+	targetLat := 40.7598464
+	for round := 0; round < 10; round++ {
+		var expected []string
+		radius := randFloat(1000.0, 2000000.0)
+		for i := 0; i < 10000; i++ {
+			lon := randFloat(-150, 150)
+			lat := randFloat(-45, 45)
+			name := fmt.Sprintf("%d", i)
+			evalGEOADD([]string{"nyc",
+				fmt.Sprintf("%f", lon),
+				fmt.Sprintf("%f", lat),
+				name})
+			dist := data_structure.GeohashGetDistance(targetLon, targetLat, lon, lat)
+			if dist <= radius {
+				expected = append(expected, name)
+			}
+		}
+
+		ret, err := Decode(evalGEOSEARCH([]string{"nyc", "FROMLONLAT",
+			fmt.Sprintf("%f", targetLon),
+			fmt.Sprintf("%f", targetLat),
+			fmt.Sprintf("%f", radius)}))
+
+		assert.Nil(t, err)
+		assert.ElementsMatch(t, expected, ret)
+	}
 }

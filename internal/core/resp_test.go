@@ -2,6 +2,7 @@ package core_test
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"memkv/internal/core"
 	"testing"
 )
@@ -74,6 +75,18 @@ func TestArrayDecode(t *testing.T) {
 			if fmt.Sprintf("%v", v[i]) != fmt.Sprintf("%v", array[i]) {
 				t.Fail()
 			}
+		}
+	}
+}
+
+func TestEncodeString2DArray(t *testing.T) {
+	var decode = [][]string{{"hello", "world"}, {"1", "2", "3"}, {"xyz"}}
+	encode := core.Encode(decode, false)
+	assert.EqualValues(t, "*3\r\n*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n*3\r\n$1\r\n1\r\n$1\r\n2\r\n$1\r\n3\r\n*1\r\n$3\r\nxyz\r\n", string(encode))
+	decodeAgain, _ := core.Decode(encode)
+	for i := 0; i < 3; i++ {
+		for j := 0; j < len(decode[i]); j++ {
+			assert.EqualValues(t, decode[i][j], decodeAgain.([]interface{})[i].([]interface{})[j])
 		}
 	}
 }

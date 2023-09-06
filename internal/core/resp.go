@@ -110,6 +110,15 @@ func encodeString(s string) []byte {
 	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(s), s))
 }
 
+func encodeStringArray(sa []string) []byte {
+	var b []byte
+	buf := bytes.NewBuffer(b)
+	for _, s := range sa {
+		buf.Write(encodeString(s))
+	}
+	return []byte(fmt.Sprintf("*%d\r\n%s", len(sa), buf.Bytes()))
+}
+
 func Encode(value interface{}, isSimpleString bool) []byte {
 	switch v := value.(type) {
 	case string:
@@ -122,12 +131,14 @@ func Encode(value interface{}, isSimpleString bool) []byte {
 	case error:
 		return []byte(fmt.Sprintf("-%s\r\n", v))
 	case []string:
+		return encodeStringArray(value.([]string))
+	case [][]string:
 		var b []byte
 		buf := bytes.NewBuffer(b)
-		for _, b := range value.([]string) {
-			buf.Write(encodeString(b))
+		for _, sa := range value.([][]string) {
+			buf.Write(encodeStringArray(sa))
 		}
-		return []byte(fmt.Sprintf("*%d\r\n%s", len(v), buf.Bytes()))
+		return []byte(fmt.Sprintf("*%d\r\n%s", len(value.([][]string)), buf.Bytes()))
 	case []int:
 		var b []byte
 		buf := bytes.NewBuffer(b)

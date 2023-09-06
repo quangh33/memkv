@@ -91,6 +91,20 @@ func TestEncodeString2DArray(t *testing.T) {
 	}
 }
 
+func TestEncodeInterfaceArray(t *testing.T) {
+	cases := map[string][]interface{}{
+		"*0\r\n":                                        {},
+		"*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n":          {"hello", "world"},
+		"*3\r\n:1\r\n:2\r\n:3\r\n":                      {int64(1), int64(2), int64(3)},
+		"*5\r\n:1\r\n:2\r\n:3\r\n:4\r\n$5\r\nhello\r\n": {int64(1), int64(2), int64(3), int64(4), "hello"},
+	git 	"*2\r\n*3\r\n:1\r\n:2\r\n:3\r\n*2\r\n$5\r\nHello\r\n$5\r\nWorld\r\n": {[]interface{}{int64(1), int64(2), int64(3)}, []interface{}{"Hello", "World"}},
+	}
+	for k, v := range cases {
+		encode := core.Encode(v, false)
+		assert.EqualValues(t, k, string(encode))
+	}
+}
+
 func TestParseCmd(t *testing.T) {
 	cases := map[string]core.MemKVCmd{
 		"*3\r\n$3\r\nput\r\n$5\r\nhello\r\n$5\r\nworld\r\n": core.MemKVCmd{

@@ -593,6 +593,33 @@ func evalGEOSEARCH(args []string) []byte {
 	return Encode(res, false)
 }
 
+func evalGEOPOS(args []string) []byte {
+	if len(args) < 2 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEOPOS' command"), false)
+	}
+	key := args[0]
+	zset, exist := zsetStore[key]
+	if !exist {
+		return constant.RespNil
+	}
+	var res [][]string
+	for i := 1; i < len(args); i++ {
+		member := args[i]
+		memberExist, score := zset.GetScore(member)
+		if memberExist < 0 {
+			res = append(res, []string{})
+			continue
+		}
+		hash := data_structure.GeohashBits{
+			Step: data_structure.GeoMaxStep,
+			Bits: uint64(score),
+		}
+		long, lat := data_structure.GeohashDecodeAreaToLongLat(data_structure.GeohashCoordRange, hash)
+		res = append(res, []string{fmt.Sprintf("%f", long), fmt.Sprintf("%f", lat)})
+	}
+	return Encode(res, false)
+}
+
 func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
@@ -650,6 +677,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalGEOHASH(cmd.Args)
 	case "GEOSEARCH":
 		res = evalGEOSEARCH(cmd.Args)
+	case "GEOPOS":
+		res = evalGEOPOS(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

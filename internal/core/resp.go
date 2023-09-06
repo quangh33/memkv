@@ -44,7 +44,6 @@ func readLen(data []byte) (int, int) {
 // $5\r\nhello\r\n => "hello"
 func readBulkString(data []byte) (string, int, error) {
 	length, pos := readLen(data)
-
 	return string(data[pos:(pos + length)]), pos + length + 2, nil
 }
 

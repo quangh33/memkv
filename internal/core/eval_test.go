@@ -242,3 +242,25 @@ func TestRandomEvalGEOSEARCH(t *testing.T) {
 		assert.ElementsMatch(t, expected, ret)
 	}
 }
+
+func TestEvalGEOPOS(t *testing.T) {
+	delete(zsetStore, "nyc")
+	evalGEOADD([]string{"nyc", "-73.9733487", "40.7648057", "central park"})
+	evalGEOADD([]string{"nyc", "-73.9375699", "40.7498929", "q4"})
+	ret, err := Decode(evalGEOPOS([]string{"nyc", "x"}))
+	assert.Nil(t, err)
+	assert.EqualValues(t, 1, len(ret.([]interface{})))
+	assert.EqualValues(t, 0, len(ret.([]interface{})[0].([]interface{})))
+
+	ret, err = Decode(evalGEOPOS([]string{"nyc", "central park", "q4"}))
+	fmt.Println(ret)
+	long1 := ret.([]interface{})[0].([]interface{})[0].(string)
+	lat1 := ret.([]interface{})[0].([]interface{})[1].(string)
+	assert.EqualValues(t, "-73.973348", long1)
+	assert.EqualValues(t, "40.764806", lat1)
+
+	long2 := ret.([]interface{})[1].([]interface{})[0].(string)
+	lat2 := ret.([]interface{})[1].([]interface{})[1].(string)
+	assert.EqualValues(t, "-73.937573", long2)
+	assert.EqualValues(t, "40.749892", lat2)
+}

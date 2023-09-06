@@ -19,17 +19,12 @@
   - SET, GET, DEL, TTL, EXPIRE, INCR
   - ZADD, ZRANK, ZREM, ZSCORE, ZCARD
   - SADD, SREM, SCARD, SMEMEBERS, SISMEMBER, SRAND, SPOP
-  - GEOADD, GEODIST, GEOHASH, GEOSEARCH
+  - GEOADD, GEODIST, GEOHASH, GEOSEARCH, GEOPOS
 - Data structures:
   - Skiplist
   - Hashtable
   - Geohash
-## WIP
-- Geo commands: 
-  - [x] GEOADD
-  - [x] GEODIST
-  - [x] GEOHASH
-  - [x] GEOSEARCH
+
 ## Todo
 - Bloom filter commands
 - Hyperloglog

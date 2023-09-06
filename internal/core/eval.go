@@ -648,6 +648,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalGEODIST(cmd.Args)
 	case "GEOHASH":
 		res = evalGEOHASH(cmd.Args)
+	case "GEOSEARCH":
+		res = evalGEOSEARCH(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

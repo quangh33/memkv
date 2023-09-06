@@ -220,8 +220,8 @@ func TestRandomEvalGEOSEARCH(t *testing.T) {
 		var expected []string
 		radius := randFloat(1000.0, 2000000.0)
 		for i := 0; i < 10000; i++ {
-			lon := randFloat(-150, 150)
-			lat := randFloat(-45, 45)
+			lon := randFloat(-180, 180)
+			lat := randFloat(-85, 85)
 			name := fmt.Sprintf("%d", i)
 			evalGEOADD([]string{"nyc",
 				fmt.Sprintf("%f", lon),

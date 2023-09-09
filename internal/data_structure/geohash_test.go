@@ -3,8 +3,8 @@ package data_structure_test
 import (
 	"github.com/stretchr/testify/assert"
 	"math"
-	"memkv/internal/core"
 	"memkv/internal/data_structure"
+	"memkv/internal/util"
 	"testing"
 )
 
@@ -26,7 +26,7 @@ func TestGeohashEncode(t *testing.T) {
 	for k, v := range cases {
 		value, _ := data_structure.GeohashEncode(data_structure.GeohashStandardRange, k[0], k[1], data_structure.GeoMaxStep)
 		value.Bits = data_structure.GeohashAlign52Bits(*value)
-		output := core.Base32encoding.Encode(value.Bits)
+		output := util.Base32encoding.Encode(value.Bits)
 		assert.EqualValues(t, v, output)
 	}
 }
@@ -54,7 +54,7 @@ func TestGeohashDecode(t *testing.T) {
 	for hash, expected := range cases {
 		geohashBits := data_structure.GeohashBits{
 			Step: data_structure.GeoMaxStep,
-			Bits: core.Base32encoding.Decode(hash) << 2,
+			Bits: util.Base32encoding.Decode(hash) << 2,
 			// need to shift-left 2 because base32 decode returns a 50bits value
 		}
 		long, lat := data_structure.GeohashDecodeAreaToLongLat(normalGeoRange, geohashBits)
@@ -100,8 +100,8 @@ func TestBase32Decode(t *testing.T) {
 	}
 
 	for _, x := range cases {
-		s := core.Base32encoding.Encode(x)
-		decode := core.Base32encoding.Decode(s)
+		s := util.Base32encoding.Encode(x)
+		decode := util.Base32encoding.Decode(s)
 		assert.EqualValues(t, x>>2, decode)
 	}
 }

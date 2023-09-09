@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"memkv/internal/constant"
 	"memkv/internal/data_structure"
+	"memkv/internal/util"
 	"strconv"
 	"strings"
 )
@@ -118,7 +119,7 @@ func evalGEOHASH(args []string) []byte {
 		 */
 		value, _ := data_structure.GeohashEncode(data_structure.GeohashStandardRange, lon, lat, data_structure.GeoMaxStep)
 		value.Bits = data_structure.GeohashAlign52Bits(*value)
-		hash := Base32encoding.Encode(value.Bits)
+		hash := util.Base32encoding.Encode(value.Bits)
 		res = append(res, hash)
 	}
 	return Encode(res, false)

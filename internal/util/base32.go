@@ -1,4 +1,4 @@
-package core
+package util
 
 const GeoAlphabet string = "0123456789bcdefghjkmnpqrstuvwxyz"
 

@@ -25,7 +25,7 @@ func evalSET(args []string) []byte {
 		ttlMs = ttlSec * 1000
 	}
 
-	Put(key, NewObj(value, ttlMs, oType, oEnc))
+	dict.Put(key, dict.NewObj(value, ttlMs, oType, oEnc))
 	return constant.RespOk
 }
 
@@ -35,12 +35,12 @@ func evalGET(args []string) []byte {
 	}
 
 	key := args[0]
-	obj := Get(key)
+	obj := dict.Get(key)
 	if obj == nil {
 		return constant.RespNil
 	}
 
-	if hasExpired(obj) {
+	if dict.HasExpired(obj) {
 		return constant.RespNil
 	}
 
@@ -52,12 +52,12 @@ func evalTTL(args []string) []byte {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'TTL' command"), false)
 	}
 	key := args[0]
-	obj := Get(key)
+	obj := dict.Get(key)
 	if obj == nil {
 		return constant.TtlKeyNotExist
 	}
 
-	exp, isExpirySet := getExpiry(obj)
+	exp, isExpirySet := dict.GetExpiry(obj)
 	if !isExpirySet {
 		return constant.TtlKeyExistNoExpire
 	}
@@ -74,7 +74,7 @@ func evalDEL(args []string) []byte {
 	delCount := 0
 
 	for _, key := range args {
-		if ok := Del(key); ok {
+		if ok := dict.Del(key); ok {
 			delCount++
 		}
 	}
@@ -92,12 +92,12 @@ func evalEXPIRE(args []string) []byte {
 		return Encode(errors.New("(error) ERR value is not an integer or out of range"), false)
 	}
 
-	obj := Get(key)
+	obj := dict.Get(key)
 	if obj == nil {
 		return constant.RespZero
 	}
 
-	setExpiry(obj, ttlSec*1000)
+	dict.SetExpiry(obj, ttlSec*1000)
 	return constant.RespOne
 }
 
@@ -106,10 +106,10 @@ func evalINCR(args []string) []byte {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'INCR' command"), false)
 	}
 	key := args[0]
-	obj := Get(key)
+	obj := dict.Get(key)
 	if obj == nil {
-		obj = NewObj("0", constant.NoExpire, constant.ObjTypeString, constant.ObjEncodingInt)
-		Put(key, obj)
+		obj = dict.NewObj("0", constant.NoExpire, constant.ObjTypeString, constant.ObjEncodingInt)
+		dict.Put(key, obj)
 	}
 
 	if err := assertType(obj.TypeEncoding, constant.ObjTypeString); err != nil {

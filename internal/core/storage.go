@@ -14,9 +14,9 @@ type Obj struct {
 	// [][][][]|[][][][]
 }
 
-var keyValueStore map[string]*Obj
+var dictStore map[string]*Obj
 
-// map from expired obj to its expire time
+// map from expired obj to its expiry time
 var keyValueExpireStore map[*Obj]uint64
 
 var zsetStore map[string]*data_structure.ZSet
@@ -24,7 +24,7 @@ var zsetStore map[string]*data_structure.ZSet
 var setStore map[string]data_structure.Set
 
 func init() {
-	keyValueStore = make(map[string]*Obj)
+	dictStore = make(map[string]*Obj)
 	keyValueExpireStore = make(map[*Obj]uint64)
 	zsetStore = make(map[string]*data_structure.ZSet)
 	setStore = make(map[string]data_structure.Set)
@@ -46,7 +46,7 @@ func setExpiry(obj *Obj, ttlMs int64) {
 }
 
 func Get(k string) *Obj {
-	v := keyValueStore[k]
+	v := dictStore[k]
 	if v != nil {
 		if hasExpired(v) {
 			Del(k)
@@ -57,7 +57,7 @@ func Get(k string) *Obj {
 }
 
 func GetAndAssert(k string, t uint8) (*Obj, error) {
-	v := keyValueStore[k]
+	v := dictStore[k]
 	if v != nil {
 		if hasExpired(v) {
 			Del(k)
@@ -71,15 +71,15 @@ func GetAndAssert(k string, t uint8) (*Obj, error) {
 }
 
 func Put(k string, obj *Obj) {
-	if len(keyValueStore) >= config.KeyNumberLimit {
+	if len(dictStore) >= config.KeyNumberLimit {
 		evict()
 	}
-	keyValueStore[k] = obj
+	dictStore[k] = obj
 }
 
 func Del(k string) bool {
-	if obj, exist := keyValueStore[k]; exist {
-		delete(keyValueStore, k)
+	if obj, exist := dictStore[k]; exist {
+		delete(dictStore, k)
 		delete(keyValueExpireStore, obj)
 		return true
 	}

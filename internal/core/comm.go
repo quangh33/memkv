@@ -2,6 +2,11 @@ package core
 
 import "syscall"
 
+type MemKVCmd struct {
+	Cmd  string
+	Args []string
+}
+
 type FDComm struct {
 	Fd int
 }

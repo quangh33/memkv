@@ -22,7 +22,7 @@ func WaitForSignal(wg *sync.WaitGroup, signals chan os.Signal) {
 	<-signals
 	for atomic.LoadInt32(&eStatus) == constant.EngineStatusBusy {
 	}
-	core.Shutdown()
+	log.Println("Shutting down gracefully")
 	os.Exit(0)
 }
 

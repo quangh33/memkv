@@ -1,9 +1,9 @@
 package config
 
-var Host string = "0.0.0.0"
-var Port int = 8081
-var MaxConnection int = 20000
-var KeyNumberLimit int = 5000000
+var Host = "0.0.0.0"
+var Port = 8081
+var MaxConnection = 20000
+var KeyNumberLimit = 5000000
 
 const (
 	EvictFirst int = 0
@@ -11,5 +11,5 @@ const (
 	LFU            = 2
 )
 
-var EvictStrategy int = EvictFirst
+var EvictStrategy = EvictFirst
 var AOFFileName = "./memkv-master.aof"

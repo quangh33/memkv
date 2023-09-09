@@ -19,7 +19,7 @@ func init() {
 
 func main() {
 	fmt.Println("starting memkv database ...")
-	var signals chan os.Signal = make(chan os.Signal, 1)
+	var signals = make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 	var wg sync.WaitGroup
 	wg.Add(2)

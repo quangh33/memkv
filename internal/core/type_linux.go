@@ -1,9 +1,11 @@
+//go:build linux
+
 package core
 
 import "syscall"
 
 func (e Event) toNative() syscall.EpollEvent {
-	event := syscall.EPOLLIN
+	var event uint32 = syscall.EPOLLIN
 	if e.Op == OpWrite {
 		event = syscall.EPOLLOUT
 	}

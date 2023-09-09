@@ -10,7 +10,7 @@
 ## Supported features
 - Compatible with [Redis CLI](https://redis.io/docs/ui/cli/)
 - Single-threaded architecture
-- Multiplexing IO for Linux using epoll
+- Multiplexing IO using epoll for Linux and kqueue for MacOS
 - [RESP protocol](https://redis.io/docs/reference/protocol-spec/)
 - Graceful shutdown
 - Simple eviction mechanism

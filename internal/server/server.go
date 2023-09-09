@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"memkv/internal/core/io_multiplexing"
 	"net"
 	"os"
 	"sync"
@@ -27,7 +28,7 @@ func WaitForSignal(wg *sync.WaitGroup, signals chan os.Signal) {
 }
 
 func readCommandFD(fd int) (*core.MemKVCmd, error) {
-	var buf []byte = make([]byte, 512)
+	var buf = make([]byte, 512)
 	n, err := syscall.Read(fd, buf)
 	if err != nil {
 		return nil, err
@@ -50,7 +51,7 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 	defer wg.Done()
 	log.Println("starting an asynchronous TCP server on", config.Host, config.Port)
 
-	var events = make([]core.Event, config.MaxConnection)
+	var events = make([]io_multiplexing.Event, config.MaxConnection)
 	clientNumber := 0
 
 	// Create a server socket. A socket is an endpoint for communication between client and server
@@ -91,16 +92,16 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 	// ioMultiplexer is an object that can monitor multiple file descriptor (FD) at the same time.
 	// When one or more monitored FD(s) are ready for IO, it will notify our server.
 	// Here, we use ioMultiplexer to monitor Server FD and Clients FD.
-	ioMultiplexer, err := core.CreateIOMultiplexer()
+	ioMultiplexer, err := io_multiplexing.CreateIOMultiplexer()
 	if err != nil {
 		return err
 	}
 	defer ioMultiplexer.Close()
 
 	// Monitor "read" events on the Server FD
-	if err = ioMultiplexer.Monitor(core.Event{
+	if err = ioMultiplexer.Monitor(io_multiplexing.Event{
 		Fd: serverFD,
-		Op: core.OpRead,
+		Op: io_multiplexing.OpRead,
 	}); err != nil {
 		return err
 	}
@@ -119,7 +120,7 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 		}
 		for i := 0; i < len(events); i++ {
 			if events[i].Fd == serverFD {
-				// the Server FD is ready for an IO, means we have a new client.
+				// the Server FD is ready for reading, means we have a new client.
 				clientNumber++
 				log.Printf("new client: id=%d\n", clientNumber)
 				// accept the incoming connection from a client
@@ -134,14 +135,14 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 				}
 
 				// add this new connection to be monitored
-				if err = ioMultiplexer.Monitor(core.Event{
+				if err = ioMultiplexer.Monitor(io_multiplexing.Event{
 					Fd: connFD,
-					Op: core.OpRead,
+					Op: io_multiplexing.OpRead,
 				}); err != nil {
 					return err
 				}
 			} else {
-				// the Client FD is ready for an IO, means an existing client is sending a command
+				// the Client FD is ready for reading, means an existing client is sending a command
 				comm := core.FDComm{Fd: int(events[i].Fd)}
 				cmd, err := readCommandFD(comm.Fd)
 				if err != nil {

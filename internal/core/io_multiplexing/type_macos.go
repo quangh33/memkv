@@ -1,6 +1,6 @@
 //go:build darwin
 
-package core
+package io_multiplexing
 
 import "syscall"
 

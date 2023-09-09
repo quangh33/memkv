@@ -1,4 +1,4 @@
-package core
+package io_multiplexing
 
 const OpRead = 0
 const OpWrite = 1

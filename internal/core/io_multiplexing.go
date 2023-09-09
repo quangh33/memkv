@@ -5,8 +5,8 @@ type Event struct {
 	Op int
 }
 
-type ioMultiplexing interface {
+type IOMultiplexer interface {
 	Monitor(event Event) error
-	Wait() ([]Event, error)
+	Check() ([]Event, error)
 	Close() error
 }

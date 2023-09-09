@@ -50,11 +50,10 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 	defer wg.Done()
 	log.Println("starting an asynchronous TCP server on", config.Host, config.Port)
 
-	// Create EPOLL Event Objects to hold events
-	var events []syscall.EpollEvent = make([]syscall.EpollEvent, config.MaxConnection)
+	var events []core.Event = make([]core.Event, config.MaxConnection)
 	clientNumber := 0
 
-	// Create a server socket - an endpoint for communication between client and server
+	// Create a server socket. A socket is an endpoint for communication between client and server
 	serverFD, err := syscall.Socket(syscall.AF_INET, syscall.O_NONBLOCK|syscall.SOCK_STREAM, 0)
 	if err != nil {
 		log.Println(err)
@@ -89,29 +88,27 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 		return err
 	}
 
-	// creating EPOLL instance
-	epollFD, err := syscall.EpollCreate1(0)
+	// ioMultiplexer is an object that can monitor multiple file descriptor (FD) at the same time.
+	// When one or more monitored FD(s) are ready for IO, it will notify our server.
+	// Here, we use ioMultiplexer to monitor Server FD and Clients FD.
+	ioMultiplexer, err := core.CreateIOMultiplexer()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer syscall.Close(epollFD)
+	defer ioMultiplexer.Close()
 
-	// Specify the events we want to monitor on server socket FD
-	// here we want to get hint whenever server socket FD is available for read operation
-	var socketServerReadReadyEvent syscall.EpollEvent = syscall.EpollEvent{
-		Events: syscall.EPOLLIN,
-		Fd:     int32(serverFD),
-	}
-
-	// Listen to read events on the Server itself
-	if err = syscall.EpollCtl(epollFD, syscall.EPOLL_CTL_ADD, serverFD, &socketServerReadReadyEvent); err != nil {
+	// Monitor "read" events on the Server FD
+	if err = ioMultiplexer.Monitor(core.Event{
+		Fd: int(serverFD),
+		Op: syscall.EPOLLIN,
+	}); err != nil {
 		return err
 	}
 
 	for atomic.LoadInt32(&eStatus) != constant.EngineStatusShuttingDown {
-		// see if any FD is ready for an IO
-		nevents, e := syscall.EpollWait(epollFD, events[:], -1)
-		if e != nil {
+		// check if any FD is ready for an IO
+		events, err = ioMultiplexer.Check()
+		if err != nil {
 			continue
 		}
 
@@ -120,12 +117,12 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 				return nil
 			}
 		}
-		for i := 0; i < nevents; i++ {
-			// if the socket server itself is ready for an IO
+		for i := 0; i < len(events); i++ {
 			if int(events[i].Fd) == serverFD {
-				// accept the incoming connection from a client
+				// the Server FD is ready for an IO, means we have a new client.
 				clientNumber++
 				log.Printf("new client: id=%d\n", clientNumber)
+				// accept the incoming connection from a client
 				connFD, _, err := syscall.Accept(serverFD)
 				if err != nil {
 					log.Println("err", err)
@@ -136,15 +133,15 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 					return err
 				}
 
-				// add this new TCP connection to be monitored
-				var socketClientEvent syscall.EpollEvent = syscall.EpollEvent{
-					Events: syscall.EPOLLIN,
-					Fd:     int32(connFD),
-				}
-				if err := syscall.EpollCtl(epollFD, syscall.EPOLL_CTL_ADD, connFD, &socketClientEvent); err != nil {
-					log.Fatal(err)
+				// add this new connection to be monitored
+				if err = ioMultiplexer.Monitor(core.Event{
+					Fd: int(connFD),
+					Op: syscall.EPOLLIN,
+				}); err != nil {
+					return err
 				}
 			} else {
+				// the Client FD is ready for an IO, means an existing client is sending a command
 				comm := core.FDComm{Fd: int(events[i].Fd)}
 				cmd, err := readCommandFD(comm.Fd)
 				if err != nil {

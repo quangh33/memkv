@@ -52,7 +52,7 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 
 	// Create EPOLL Event Objects to hold events
 	var events []syscall.EpollEvent = make([]syscall.EpollEvent, config.MaxConnection)
-	client_number := 0
+	clientNumber := 0
 
 	// Create a server socket - an endpoint for communication between client and server
 	serverFD, err := syscall.Socket(syscall.AF_INET, syscall.O_NONBLOCK|syscall.SOCK_STREAM, 0)
@@ -124,8 +124,8 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 			// if the socket server itself is ready for an IO
 			if int(events[i].Fd) == serverFD {
 				// accept the incoming connection from a client
-				client_number++
-				log.Printf("new client: id=%d\n", client_number)
+				clientNumber++
+				log.Printf("new client: id=%d\n", clientNumber)
 				connFD, _, err := syscall.Accept(serverFD)
 				if err != nil {
 					log.Println("err", err)
@@ -149,7 +149,7 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 				cmd, err := readCommandFD(comm.Fd)
 				if err != nil {
 					syscall.Close(int(events[i].Fd))
-					client_number--
+					clientNumber--
 					log.Println("client quit")
 					atomic.SwapInt32(&eStatus, constant.EngineStatusWaiting)
 					continue

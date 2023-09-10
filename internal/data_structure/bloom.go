@@ -5,6 +5,10 @@ import (
 	"math"
 )
 
+const Ln2 float64 = 0.480453013918201
+const Ln2Square float64 = 0.480453013918201
+const ABigSeed uint32 = 0xc6a4a7935bd1e995
+
 type Bloom struct {
 	Hashes      int
 	Entries     uint64
@@ -21,9 +25,8 @@ type HashValue struct {
 }
 
 func calcBpe(err float64) float64 {
-	denom := 0.480453013918201 // ln(2)^2
 	num := math.Log(err)
-	return math.Abs(-(num / denom))
+	return math.Abs(-(num / Ln2Square))
 }
 
 /*
@@ -44,13 +47,13 @@ func CreateBloomFilter(entries uint64, errorRate float64) *Bloom {
 		bloom.bytes = bits / 8
 	}
 	bloom.bits = bloom.bytes * 8
-	bloom.Hashes = int(math.Ceil(0.693147180559945 * bloom.bitPerEntry)) // ln(2)
+	bloom.Hashes = int(math.Ceil(Ln2 * bloom.bitPerEntry))
 	bloom.bf = make([]uint8, bloom.bytes)
 	return &bloom
 }
 
 func (b *Bloom) CalcHash(entry string) HashValue {
-	hasher := murmur3.New128WithSeed(0xc6a4a7935bd1e995)
+	hasher := murmur3.New128WithSeed(ABigSeed)
 	hasher.Write([]byte(entry))
 	x, y := hasher.Sum128()
 	return HashValue{

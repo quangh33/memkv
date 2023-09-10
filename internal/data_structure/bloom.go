@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-const Ln2 float64 = 0.480453013918201
+const Ln2 float64 = 0.693147180559945
 const Ln2Square float64 = 0.480453013918201
 const ABigSeed uint32 = 0xc6a4a7935bd1e995
 

@@ -26,7 +26,7 @@
   - Geohash
 
 ## Todo
-- Bloom filter commands
+- [Scalable Bloom Filter](https://gsd.di.uminho.pt/members/cbm/ps/dbloom.pdf)
 - Hyperloglog
 - Count-min sketch
 - Morris counter

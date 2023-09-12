@@ -16,7 +16,7 @@ func resetSetStore() {
 	setStore = make(map[string]data_structure.Set)
 }
 
-func TestEvalSADD(t *testing.T) {
+func TestCmdSADD(t *testing.T) {
 	resetSetStore()
 	res, err := Decode(cmdSADD([]string{"set", "adele"}))
 	assert.Nil(t, err)
@@ -27,7 +27,7 @@ func TestEvalSADD(t *testing.T) {
 	assert.EqualValues(t, 2, res)
 }
 
-func TestEvalSREM(t *testing.T) {
+func TestCmdSREM(t *testing.T) {
 	resetSetStore()
 	res, err := Decode(cmdSREM([]string{"set", "adele"}))
 	assert.Nil(t, err)
@@ -39,7 +39,7 @@ func TestEvalSREM(t *testing.T) {
 	assert.EqualValues(t, 1, res)
 }
 
-func TestEvalSCARD(t *testing.T) {
+func TestCmdSCARD(t *testing.T) {
 	resetSetStore()
 
 	cmdSADD([]string{"set", "a", "b", "c"})
@@ -48,7 +48,7 @@ func TestEvalSCARD(t *testing.T) {
 	assert.EqualValues(t, 3, res)
 }
 
-func TestEvalSMEMBERS(t *testing.T) {
+func TestCmdSMEMBERS(t *testing.T) {
 	resetSetStore()
 
 	cmdSADD([]string{"set", "a", "b", "c"})
@@ -57,7 +57,7 @@ func TestEvalSMEMBERS(t *testing.T) {
 	assert.ElementsMatch(t, []string{"a", "b", "c"}, res)
 }
 
-func TestEvalSMISMEMBER(t *testing.T) {
+func TestCmdSMISMEMBER(t *testing.T) {
 	resetSetStore()
 
 	cmdSADD([]string{"set", "a", "b", "c"})
@@ -66,7 +66,7 @@ func TestEvalSMISMEMBER(t *testing.T) {
 	assert.ElementsMatch(t, []int{1, 0}, res)
 }
 
-func TestEvalSRAND(t *testing.T) {
+func TestCmdSRAND(t *testing.T) {
 	resetSetStore()
 
 	cmdSADD([]string{"set", "a", "b", "c"})
@@ -86,7 +86,7 @@ func TestEvalSRAND(t *testing.T) {
 	}
 }
 
-func TestEvalSPOP(t *testing.T) {
+func TestCmdSPOP(t *testing.T) {
 	resetSetStore()
 
 	cmdSADD([]string{"set", "a", "b", "c"})
@@ -110,7 +110,7 @@ func TestEvalSPOP(t *testing.T) {
 	assert.ElementsMatch(t, expected, res)
 }
 
-func TestEvalGEOADD(t *testing.T) {
+func TestCmdGEOADD(t *testing.T) {
 	delete(zsetStore, "vn")
 	res, err := Decode(cmdGEOADD([]string{"vn", "10", "20", "p1"}))
 	assert.Nil(t, err)
@@ -138,7 +138,7 @@ func TestEvalGEOADD(t *testing.T) {
 	assert.EqualValues(t, "(error) ERR wrong number of arguments for 'GEOADD' command", res)
 }
 
-func TestEvalGEODIST(t *testing.T) {
+func TestCmdGEODIST(t *testing.T) {
 	delete(zsetStore, "vn")
 	cmdGEOADD([]string{"vn", "20", "10", "p1"})
 	cmdGEOADD([]string{"vn", "40", "30", "p2"})
@@ -171,7 +171,7 @@ func TestEvalGEODIST(t *testing.T) {
 	assert.LessOrEqual(t, math.Abs(dist-3041), 1.0)
 }
 
-func TestEvalGeoHash(t *testing.T) {
+func TestCmdGeoHash(t *testing.T) {
 	delete(zsetStore, "vn")
 	cmdGEOADD([]string{"vn", "13.361389", "38.115556", "p1"})
 	cmdGEOADD([]string{"vn", "15.087269", "37.502669", "p2"})
@@ -243,7 +243,7 @@ func TestRandomEvalGEOSEARCH(t *testing.T) {
 	}
 }
 
-func TestEvalGEOPOS(t *testing.T) {
+func TestCmdGEOPOS(t *testing.T) {
 	delete(zsetStore, "nyc")
 	cmdGEOADD([]string{"nyc", "-73.9733487", "40.7648057", "central park"})
 	cmdGEOADD([]string{"nyc", "-73.9375699", "40.7498929", "q4"})

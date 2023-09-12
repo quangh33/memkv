@@ -86,3 +86,18 @@ func cmdBFMADD(args []string) []byte {
 	}
 	return Encode(res, false)
 }
+
+func cmdBFEXISTS(args []string) []byte {
+	if len(args) != 2 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'BF.EXISTS' command"), false)
+	}
+	key, item := args[0], args[1]
+	sb, exist := sbStore[key]
+	if !exist {
+		return constant.RespZero
+	}
+	if !sb.Exist(item) {
+		return constant.RespZero
+	}
+	return constant.RespOne
+}

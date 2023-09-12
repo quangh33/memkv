@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func evalPING(args []string) []byte {
+func cmdPING(args []string) []byte {
 	var buf []byte
 
 	if len(args) > 1 {
@@ -22,65 +22,65 @@ func evalPING(args []string) []byte {
 	return buf
 }
 
-func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
+func cmdAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
 	switch cmd.Cmd {
 	case "PING":
-		res = evalPING(cmd.Args)
+		res = cmdPING(cmd.Args)
 	case "SET":
-		res = evalSET(cmd.Args)
+		res = cmdSET(cmd.Args)
 	case "GET":
-		res = evalGET(cmd.Args)
+		res = cmdGET(cmd.Args)
 	case "TTL":
-		res = evalTTL(cmd.Args)
+		res = cmdTTL(cmd.Args)
 	case "DEL":
-		res = evalDEL(cmd.Args)
+		res = cmdDEL(cmd.Args)
 	case "EXPIRE":
-		res = evalEXPIRE(cmd.Args)
+		res = cmdEXPIRE(cmd.Args)
 	case "INCR":
-		res = evalINCR(cmd.Args)
+		res = cmdINCR(cmd.Args)
 	// Set
 	case "SADD":
-		res = evalSADD(cmd.Args)
+		res = cmdSADD(cmd.Args)
 	case "SREM":
-		res = evalSREM(cmd.Args)
+		res = cmdSREM(cmd.Args)
 	case "SCARD":
-		res = evalSCARD(cmd.Args)
+		res = cmdSCARD(cmd.Args)
 	case "SMEMBERS":
-		res = evalSMEMBERS(cmd.Args)
+		res = cmdSMEMBERS(cmd.Args)
 	case "SISMEMBER":
-		res = evalSISMEMBER(cmd.Args)
+		res = cmdSISMEMBER(cmd.Args)
 	case "SMISMEMBER":
-		res = evalSMISMEMBER(cmd.Args)
+		res = cmdSMISMEMBER(cmd.Args)
 	case "SRAND":
-		res = evalSRAND(cmd.Args)
+		res = cmdSRAND(cmd.Args)
 	case "SPOP":
-		res = evalSPOP(cmd.Args)
+		res = cmdSPOP(cmd.Args)
 	// Sorted set
 	case "ZADD":
-		res = evalZADD(cmd.Args)
+		res = cmdZADD(cmd.Args)
 	case "ZRANK":
-		res = evalZRANK(cmd.Args)
+		res = cmdZRANK(cmd.Args)
 	case "ZREM":
-		res = evalZREM(cmd.Args)
+		res = cmdZREM(cmd.Args)
 	case "ZSCORE":
-		res = evalZSCORE(cmd.Args)
+		res = cmdZSCORE(cmd.Args)
 	case "ZCARD":
-		res = evalZCARD(cmd.Args)
+		res = cmdZCARD(cmd.Args)
 	// Geo Hash
 	case "GEOADD":
-		res = evalGEOADD(cmd.Args)
+		res = cmdGEOADD(cmd.Args)
 	case "GEODIST":
-		res = evalGEODIST(cmd.Args)
+		res = cmdGEODIST(cmd.Args)
 	case "GEOHASH":
-		res = evalGEOHASH(cmd.Args)
+		res = cmdGEOHASH(cmd.Args)
 	case "GEOSEARCH":
-		res = evalGEOSEARCH(cmd.Args)
+		res = cmdGEOSEARCH(cmd.Args)
 	case "GEOPOS":
-		res = evalGEOPOS(cmd.Args)
+		res = cmdGEOPOS(cmd.Args)
 	case "BF.RESERVE":
-		res = evalBFRESERVE(cmd.Args)
+		res = cmdBFRESERVE(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

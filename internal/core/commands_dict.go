@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func evalSET(args []string) []byte {
+func cmdSET(args []string) []byte {
 	if len(args) < 2 || len(args) == 3 || len(args) > 4 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'SET' command"), false)
 	}
@@ -29,7 +29,7 @@ func evalSET(args []string) []byte {
 	return constant.RespOk
 }
 
-func evalGET(args []string) []byte {
+func cmdGET(args []string) []byte {
 	if len(args) != 1 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'GET' command"), false)
 	}
@@ -47,7 +47,7 @@ func evalGET(args []string) []byte {
 	return Encode(obj.Value, false)
 }
 
-func evalTTL(args []string) []byte {
+func cmdTTL(args []string) []byte {
 	if len(args) != 1 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'TTL' command"), false)
 	}
@@ -70,7 +70,7 @@ func evalTTL(args []string) []byte {
 	return Encode(int64(remainMs/1000), false)
 }
 
-func evalDEL(args []string) []byte {
+func cmdDEL(args []string) []byte {
 	delCount := 0
 
 	for _, key := range args {
@@ -82,7 +82,7 @@ func evalDEL(args []string) []byte {
 	return Encode(delCount, false)
 }
 
-func evalEXPIRE(args []string) []byte {
+func cmdEXPIRE(args []string) []byte {
 	if len(args) < 2 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'EXPIRE' command"), false)
 	}
@@ -101,7 +101,7 @@ func evalEXPIRE(args []string) []byte {
 	return constant.RespOne
 }
 
-func evalINCR(args []string) []byte {
+func cmdINCR(args []string) []byte {
 	if len(args) != 1 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'INCR' command"), false)
 	}

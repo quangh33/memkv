@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func evalZADD(args []string) []byte {
+func cmdZADD(args []string) []byte {
 	if len(args) < 3 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZADD' command"), false)
 	}
@@ -60,7 +60,7 @@ func evalZADD(args []string) []byte {
 	return Encode(count, false)
 }
 
-func evalZRANK(args []string) []byte {
+func cmdZRANK(args []string) []byte {
 	if len(args) != 2 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZRANK' command"), false)
 	}
@@ -73,7 +73,7 @@ func evalZRANK(args []string) []byte {
 	return Encode(rank, false)
 }
 
-func evalZREM(args []string) []byte {
+func cmdZREM(args []string) []byte {
 	if len(args) < 2 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZREM' command"), false)
 	}
@@ -96,7 +96,7 @@ func evalZREM(args []string) []byte {
 	return Encode(deleted, false)
 }
 
-func evalZSCORE(args []string) []byte {
+func cmdZSCORE(args []string) []byte {
 	if len(args) != 2 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZSCORE' command"), false)
 	}
@@ -112,7 +112,7 @@ func evalZSCORE(args []string) []byte {
 	return Encode(fmt.Sprintf("%f", score), false)
 }
 
-func evalZCARD(args []string) []byte {
+func cmdZCARD(args []string) []byte {
 	if len(args) != 1 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZCARD' command"), false)
 	}

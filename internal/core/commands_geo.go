@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func evalGEOADD(args []string) []byte {
+func cmdGEOADD(args []string) []byte {
 	if len(args) < 4 || len(args)%3 != 1 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEOADD' command"), false)
 	}
@@ -35,13 +35,13 @@ func evalGEOADD(args []string) []byte {
 		zaddArgs = append(zaddArgs, fmt.Sprintf("%d", bits))
 		zaddArgs = append(zaddArgs, member)
 	}
-	return evalZADD(zaddArgs)
+	return cmdZADD(zaddArgs)
 }
 
 /*
 The distance is computed assuming that the Earth is a perfect sphere, so errors up to 0.5% are possible in edge cases.
 */
-func evalGEODIST(args []string) []byte {
+func cmdGEODIST(args []string) []byte {
 	if !(len(args) == 3 || len(args) == 4) {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEODIST' command"), false)
 	}
@@ -86,7 +86,7 @@ func evalGEODIST(args []string) []byte {
 	return Encode(fmt.Sprintf("%f", dist), false)
 }
 
-func evalGEOHASH(args []string) []byte {
+func cmdGEOHASH(args []string) []byte {
 	if len(args) < 1 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEOHASH' command"), false)
 	}
@@ -129,7 +129,7 @@ func evalGEOHASH(args []string) []byte {
 GEOSEARCH key [FROMMEMBER member] [FROMLONLAT long lat] radius
 TODO: support more options like Redis
 */
-func evalGEOSEARCH(args []string) []byte {
+func cmdGEOSEARCH(args []string) []byte {
 	if !(len(args) == 4 || len(args) == 5) {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEOHASH' command"), false)
 	}
@@ -190,7 +190,7 @@ func evalGEOSEARCH(args []string) []byte {
 	return Encode(res, false)
 }
 
-func evalGEOPOS(args []string) []byte {
+func cmdGEOPOS(args []string) []byte {
 	if len(args) < 2 {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'GEOPOS' command"), false)
 	}

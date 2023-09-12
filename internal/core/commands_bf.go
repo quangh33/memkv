@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func evalBFRESERVE(args []string) []byte {
+func cmdBFRESERVE(args []string) []byte {
 	if !(len(args) == 3 || len(args) == 5) {
 		return Encode(errors.New("(error) ERR wrong number of arguments for 'BF.RESERVE' command"), false)
 	}

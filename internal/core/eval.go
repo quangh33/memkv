@@ -81,6 +81,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = cmdGEOPOS(cmd.Args)
 	case "BF.RESERVE":
 		res = cmdBFRESERVE(cmd.Args)
+	case "BF.INFO":
+		res = cmdBFINFO(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

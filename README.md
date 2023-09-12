@@ -20,13 +20,13 @@
   - ZADD, ZRANK, ZREM, ZSCORE, ZCARD
   - SADD, SREM, SCARD, SMEMEBERS, SISMEMBER, SRAND, SPOP
   - GEOADD, GEODIST, GEOHASH, GEOSEARCH, GEOPOS
+  - BF.RESERVE, BF.INFO
 - Data structures:
-  - Skiplist
   - Hashtable
-  - Geohash
-
+  - [Skiplist](https://en.wikipedia.org/wiki/Skip_list)
+  - [Geohash](https://en.wikipedia.org/wiki/Geohash)
+  - [Scalable Bloom Filter](https://gsd.di.uminho.pt/members/cbm/ps/dbloom.pdf)
 ## Todo
-- [Scalable Bloom Filter](https://gsd.di.uminho.pt/members/cbm/ps/dbloom.pdf)
 - Hyperloglog
 - Count-min sketch
 - Morris counter

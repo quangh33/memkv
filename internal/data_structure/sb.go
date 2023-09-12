@@ -1,5 +1,9 @@
 package data_structure
 
+import (
+	"reflect"
+)
+
 // Implementation of Scalable Bloom Filter data structure
 // https://gsd.di.uminho.pt/members/cbm/ps/dbloom.pdf
 
@@ -73,4 +77,28 @@ func (sb *SBChain) existHash(hash HashValue) bool {
 func (sb *SBChain) Exist(item string) bool {
 	hash := sb.filters[0].bloom.CalcHash(item)
 	return sb.existHash(hash)
+}
+
+func (sb *SBChain) GetCapacity() uint64 {
+	var res uint64 = 0
+	for i := 0; i < len(sb.filters); i++ {
+		res += sb.filters[i].bloom.Entries
+	}
+	return res
+}
+
+func (sb *SBChain) GetSize() uint64 {
+	return sb.size
+}
+
+func (sb *SBChain) GetFilterNumber() int {
+	return len(sb.filters)
+}
+
+func (sb *SBChain) GetMemUsage() uint64 {
+	return uint64(reflect.TypeOf(*sb).Size())
+}
+
+func (sb *SBChain) GetGrowthFactor() uint64 {
+	return sb.growthFactor
 }

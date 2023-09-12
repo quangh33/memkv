@@ -41,3 +41,22 @@ func cmdBFRESERVE(args []string) []byte {
 	sbStore[key] = data_structure.CreateSBChain(capacity, errRate, growthRate)
 	return constant.RespOk
 }
+
+func cmdBFINFO(args []string) []byte {
+	if len(args) != 1 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'BF.INFO' command"), false)
+	}
+	key := args[0]
+	sb, exist := sbStore[key]
+	if !exist {
+		return Encode(errors.New(fmt.Sprintf("Bloom filter with key '%s' does not exist", key)), false)
+	}
+	var res []string
+	res = append(res, "Capacity", fmt.Sprintf("%d", sb.GetCapacity()),
+		"Size", fmt.Sprintf("%d", sb.GetMemUsage()),
+		"Number of filters", fmt.Sprintf("%d", sb.GetFilterNumber()),
+		"Number of items inserted", fmt.Sprintf("%d", sb.GetSize()),
+		"Expansion rate", fmt.Sprintf("%d", sb.GetGrowthFactor()))
+
+	return Encode(res, false)
+}

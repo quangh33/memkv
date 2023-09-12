@@ -79,6 +79,7 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = cmdGEOSEARCH(cmd.Args)
 	case "GEOPOS":
 		res = cmdGEOPOS(cmd.Args)
+	// Bloom filter
 	case "BF.RESERVE":
 		res = cmdBFRESERVE(cmd.Args)
 	case "BF.INFO":

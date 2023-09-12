@@ -79,6 +79,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = evalGEOSEARCH(cmd.Args)
 	case "GEOPOS":
 		res = evalGEOPOS(cmd.Args)
+	case "BF.RESERVE":
+		res = evalBFRESERVE(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

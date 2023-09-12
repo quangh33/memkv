@@ -20,11 +20,11 @@ func evalGEOADD(args []string) []byte {
 	for i := 1; i < len(args); i += 3 {
 		lon, err := strconv.ParseFloat(args[i], 64)
 		if err != nil {
-			return Encode(errors.New(fmt.Sprintf("lon value must be a floating point number %s\n", args[i])), false)
+			return Encode(errors.New(fmt.Sprintf("lon value must be a floating point number %s", args[i])), false)
 		}
 		lat, err := strconv.ParseFloat(args[i+1], 64)
 		if err != nil {
-			return Encode(errors.New(fmt.Sprintf("lat value must be a floating point number %s\n", args[i+1])), false)
+			return Encode(errors.New(fmt.Sprintf("lat value must be a floating point number %s", args[i+1])), false)
 		}
 		member := args[i+2]
 		hash, err := data_structure.GeohashEncode(data_structure.GeohashCoordRange, lon, lat, data_structure.GeoMaxStep)

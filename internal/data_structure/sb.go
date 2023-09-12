@@ -4,6 +4,7 @@ package data_structure
 // https://gsd.di.uminho.pt/members/cbm/ps/dbloom.pdf
 
 const ErrorTighteningRatio = 0.5
+const BfDefaultExpansion = 2
 
 type SBLink struct {
 	bloom *Bloom
@@ -19,10 +20,10 @@ func (sbl *SBLink) AddHash(hash HashValue) {
 type SBChain struct {
 	filters      []SBLink
 	size         uint64 // total number of items in all filters
-	growthFactor uint32 // growth factor of filter's size
+	growthFactor uint64 // growth factor of filter's size
 }
 
-func CreateSBChain(initSize uint64, errorRate float64, growthFactor uint32) *SBChain {
+func CreateSBChain(initSize uint64, errorRate float64, growthFactor uint64) *SBChain {
 	if initSize == 0 || errorRate == 0 || errorRate >= 1 {
 		return nil
 	}

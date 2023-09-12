@@ -22,7 +22,7 @@ func cmdPING(args []string) []byte {
 	return buf
 }
 
-func cmdAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
+func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 	var res []byte
 
 	switch cmd.Cmd {

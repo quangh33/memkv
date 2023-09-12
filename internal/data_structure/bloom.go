@@ -38,6 +38,7 @@ http://en.wikipedia.org/wiki/Bloom_filter
 func CreateBloomFilter(entries uint64, errorRate float64) *Bloom {
 	bloom := Bloom{
 		Entries: entries,
+		Error:   errorRate,
 	}
 	bloom.bitPerEntry = calcBpe(errorRate)
 	bits := uint64(float64(entries) * bloom.bitPerEntry)
@@ -75,6 +76,27 @@ func (b *Bloom) Add(entry string) {
 func (b *Bloom) Exist(entry string) bool {
 	var hash, bytePos uint64
 	initHash := b.CalcHash(entry)
+	for i := 0; i < b.Hashes; i++ {
+		hash = (initHash.a + initHash.b*uint64(i)) % b.bits
+		bytePos = hash >> 3 // div 8
+		if (b.bf[bytePos] & (1 << (hash % 8))) == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func (b *Bloom) AddHash(initHash HashValue) {
+	var hash, bytePos uint64
+	for i := 0; i < b.Hashes; i++ {
+		hash = (initHash.a + initHash.b*uint64(i)) % b.bits
+		bytePos = hash >> 3 // div 8
+		b.bf[bytePos] |= 1 << (hash % 8)
+	}
+}
+
+func (b *Bloom) ExistHash(initHash HashValue) bool {
+	var hash, bytePos uint64
 	for i := 0; i < b.Hashes; i++ {
 		hash = (initHash.a + initHash.b*uint64(i)) % b.bits
 		bytePos = hash >> 3 // div 8

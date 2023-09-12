@@ -20,7 +20,7 @@
   - ZADD, ZRANK, ZREM, ZSCORE, ZCARD
   - SADD, SREM, SCARD, SMEMEBERS, SISMEMBER, SRAND, SPOP
   - GEOADD, GEODIST, GEOHASH, GEOSEARCH, GEOPOS
-  - BF.RESERVE, BF.INFO, BF.MADD, BF.EXISTS
+  - BF.RESERVE, BF.INFO, BF.MADD, BF.EXISTS, BF.MEXISTS
 - Data structures:
   - Hashtable
   - [Skiplist](https://en.wikipedia.org/wiki/Skip_list)

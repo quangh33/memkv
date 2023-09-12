@@ -101,3 +101,25 @@ func cmdBFEXISTS(args []string) []byte {
 	}
 	return constant.RespOne
 }
+
+func cmdBFMEXISTS(args []string) []byte {
+	if len(args) < 2 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'BF.MEXISTS' command"), false)
+	}
+	key := args[0]
+	sb, exist := sbStore[key]
+	var res []string
+	for i := 1; i < len(args); i++ {
+		if !exist {
+			res = append(res, "0")
+			continue
+		}
+		item := args[i]
+		if !sb.Exist(item) {
+			res = append(res, "0")
+			continue
+		}
+		res = append(res, "1")
+	}
+	return Encode(res, false)
+}

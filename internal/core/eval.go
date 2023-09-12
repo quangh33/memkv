@@ -88,6 +88,8 @@ func EvalAndResponse(cmd *MemKVCmd, c io.ReadWriter) error {
 		res = cmdBFMADD(cmd.Args)
 	case "BF.EXISTS":
 		res = cmdBFEXISTS(cmd.Args)
+	case "BF.MEXISTS":
+		res = cmdBFMEXISTS(cmd.Args)
 	default:
 		return errors.New(fmt.Sprintf("command not found: %s", cmd.Cmd))
 	}

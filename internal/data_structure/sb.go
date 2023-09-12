@@ -9,6 +9,8 @@ import (
 
 const ErrorTighteningRatio = 0.5
 const BfDefaultExpansion = 2
+const BfDefaultInitCapacity = 100
+const BfDefaultErrRate = 0.01
 
 type SBLink struct {
 	bloom *Bloom

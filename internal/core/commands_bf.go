@@ -60,3 +60,29 @@ func cmdBFINFO(args []string) []byte {
 
 	return Encode(res, false)
 }
+
+func cmdBFMADD(args []string) []byte {
+	if len(args) < 2 {
+		return Encode(errors.New("(error) ERR wrong number of arguments for 'BF.MADD' command"), false)
+	}
+	key := args[0]
+	sb, exist := sbStore[key]
+	var err error
+	if !exist {
+		sb = data_structure.CreateSBChain(data_structure.BfDefaultInitCapacity,
+			data_structure.BfDefaultErrRate,
+			data_structure.BfDefaultExpansion)
+		sbStore[key] = sb
+	}
+	var res []string
+	for i := 1; i < len(args); i++ {
+		item := args[i]
+		err = sb.Add(item)
+		if err != nil {
+			res = append(res, "ERR problem inserting into filter")
+		} else {
+			res = append(res, "1")
+		}
+	}
+	return Encode(res, false)
+}

@@ -33,3 +33,5 @@
 - Morris counter
 - Cuckoo filter
 - Approx LRU eviction
+- Approx LFU eviction
+- Longest Common Subsequence

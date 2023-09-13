@@ -21,6 +21,7 @@
   - SADD, SREM, SCARD, SMEMEBERS, SISMEMBER, SRAND, SPOP
   - GEOADD, GEODIST, GEOHASH, GEOSEARCH, GEOPOS
   - BF.RESERVE, BF.INFO, BF.MADD, BF.EXISTS, BF.MEXISTS
+  - CMS.INITBYDIM, CMS.INITBYPROB, CMS.INCRBY, CMS.QUERY
 - Data structures:
   - Hashtable
   - [Skiplist](https://en.wikipedia.org/wiki/Skip_list)

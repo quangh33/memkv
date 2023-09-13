@@ -26,9 +26,9 @@
   - [Skiplist](https://en.wikipedia.org/wiki/Skip_list)
   - [Geohash](https://en.wikipedia.org/wiki/Geohash)
   - [Scalable Bloom Filter](https://gsd.di.uminho.pt/members/cbm/ps/dbloom.pdf)
+  - [Count-min sketch](https://quanghoang.substack.com/p/count-min-sketch)
 ## Todo
 - Hyperloglog
-- Count-min sketch
 - Morris counter
 - Cuckoo filter
 - Approx LRU eviction

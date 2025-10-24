@@ -17,9 +17,9 @@ This project was built for educational purposes to explore high-performance netw
 
 - **Probabilistic Data Structures**: Includes implementations of:
 
-- **Scalable Bloom Filter**: For fast, memory-efficient set membership testing (BF.ADD, BF.EXISTS).
+  - **Scalable Bloom Filter**: For fast, memory-efficient set membership testing (BF.ADD, BF.EXISTS).
 
-- **Count-Min Sketch**: For estimating item frequencies in a data stream (CMS.INCRBY, CMS.QUERY).
+  - **Count-Min Sketch**: For estimating item frequencies in a data stream (CMS.INCRBY, CMS.QUERY).
 
 - **Graceful Shutdown**: Ensures data is handled correctly and connections are closed properly on server termination.
   
